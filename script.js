@@ -310,9 +310,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Improved Recording Workflow: Arm -> Tap Pad
     recBtn.addEventListener('click', () => {
         if (currentBank !== 'C') {
-            alert("Switch to USER Bank (C) to record!");
-            return;
+            // Auto-switch to Bank C
+            currentBank = 'C';
+            bankBtn.innerText = 'USER (MIC)';
         }
+
         recArmed = !recArmed;
         recBtn.classList.toggle('recording', recArmed);
 
