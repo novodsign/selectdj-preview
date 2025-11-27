@@ -924,4 +924,57 @@ document.addEventListener('DOMContentLoaded', () => {
         osc.start();
         osc.stop(audioContext.currentTime + 0.1);
     }
+
+    // --- Custom Cursor Logic ---
+    const cursor = document.querySelector('.custom-cursor');
+    const hoverElements = document.querySelectorAll('a, button, .te-knob, .te-fader, .te-pad, .faq-question, input, .gallery-item');
+
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+    });
+
+    hoverElements.forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    });
+
+    // --- Text Scramble Effect ---
+    const scrambleElements = document.querySelectorAll('[data-scramble]');
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    const scrambleObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                scrambleText(entry.target);
+                scrambleObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    scrambleElements.forEach(el => scrambleObserver.observe(el));
+
+    function scrambleText(element) {
+        let iterations = 0;
+        const originalText = element.dataset.scramble;
+        const interval = setInterval(() => {
+            element.innerText = originalText.split("")
+                .map((letter, index) => {
+                    if (index < iterations) return originalText[index];
+                    return letters[Math.floor(Math.random() * 26)];
+                })
+                .join("");
+
+            if (iterations >= originalText.length) clearInterval(interval);
+            iterations += 1 / 3;
+        }, 30);
+    }
+
+    // --- FAQ Accordion ---
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        item.querySelector('.faq-question').addEventListener('click', () => {
+            item.classList.toggle('active');
+        });
+    });
 });
