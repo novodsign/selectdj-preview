@@ -164,16 +164,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentBank = 'A'; // A, B, C (User)
     let isLooping = false;
     let isRecording = false;
+    let recArmed = false;
     let mediaRecorder;
     let recordedChunks = [];
-    let userSamples = [null, null, null, null]; // Buffers for Bank C
+    let userSamples = [null, null, null, null];
 
     // Beat State
     let nextNoteTime = 0.0;
-    let beatCount = 0;
+    let current16thNote = 0;
     let tempo = 120;
     let timerID;
     const scheduleAheadTime = 0.1;
+    const lookahead = 25.0;
 
     // Scratch Variables
     let isDragging = false;
@@ -207,9 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
             eqLow.type = 'lowshelf';
             eqLow.frequency.value = 300;
 
-            // DJ Filter (Lowpass/Highpass)
+            // DJ Filter
             filterNode = audioContext.createBiquadFilter();
-            filterNode.type = 'allpass'; // Neutral start
+            filterNode.type = 'allpass';
             filterNode.frequency.value = 20000;
 
             // Bitcrusher
@@ -219,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Delay
             delayNode = audioContext.createDelay();
-            delayNode.delayTime.value = 0.5;
+            delayNode.delayTime.value = 0.375; // Dotted 8th at 120ish
             delayFeedback = audioContext.createGain();
             delayFeedback.gain.value = 0.4;
             delayGain = audioContext.createGain();
@@ -227,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Reverb
             reverbNode = audioContext.createConvolver();
-            reverbNode.buffer = createImpulseResponse(2, 2, false); // 2s decay
+            reverbNode.buffer = createImpulseResponse(2, 2, false);
             reverbGain = audioContext.createGain();
             reverbGain.gain.value = 0;
 
@@ -235,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
             deckAGain = audioContext.createGain();
             deckBGain = audioContext.createGain();
 
-            // Mix Decks -> EQ
             deckAGain.connect(eqLow);
             deckBGain.connect(eqLow);
 
@@ -244,7 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
             eqHigh.connect(filterNode);
             filterNode.connect(bitcrusher);
 
-            // Sends
+            bitcrusher.connect(masterGain);
+
             bitcrusher.connect(delayNode);
             delayNode.connect(delayFeedback);
             delayFeedback.connect(delayNode);
@@ -254,8 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
             bitcrusher.connect(reverbNode);
             reverbNode.connect(reverbGain);
             reverbGain.connect(masterGain);
-
-            bitcrusher.connect(masterGain); // Dry signal to master
 
             masterGain.connect(analyser);
             analyser.connect(audioContext.destination);
@@ -283,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const impulse = audioContext.createBuffer(2, length, sampleRate);
         const left = impulse.getChannelData(0);
         const right = impulse.getChannelData(1);
-
         for (let i = 0; i < length; i++) {
             const n = reverse ? length - i : i;
             left[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
@@ -294,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Sampler Logic ---
 
-    // Bank Switching
     bankBtn.addEventListener('click', () => {
         if (currentBank === 'A') currentBank = 'B';
         else if (currentBank === 'B') currentBank = 'C';
@@ -304,53 +302,71 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentBank === 'C') bankBtn.innerText = 'USER (MIC)';
     });
 
-    // Loop Toggle
     loopBtn.addEventListener('click', () => {
         isLooping = !isLooping;
         loopBtn.classList.toggle('active', isLooping);
     });
 
-    // Revised Recording: Hold Rec + Click Pad
-    // We need to track Rec button state separately from the mousedown event which starts recording immediately.
-    // Let's use a flag.
-    let recHeld = false;
+    // Improved Recording Workflow: Arm -> Tap Pad
+    recBtn.addEventListener('click', () => {
+        if (currentBank !== 'C') {
+            alert("Switch to USER Bank (C) to record!");
+            return;
+        }
+        recArmed = !recArmed;
+        recBtn.classList.toggle('recording', recArmed);
 
-    recBtn.addEventListener('mousedown', () => { recHeld = true; recBtn.classList.add('active'); });
-    recBtn.addEventListener('mouseup', () => { recHeld = false; recBtn.classList.remove('active'); });
+        if (!recArmed && isRecording) {
+            // If disarmed while recording, stop
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+        }
+    });
 
     pads.forEach((pad, index) => {
         pad.addEventListener('mousedown', async () => {
             initAudio();
+            if (audioContext.state === 'suspended') audioContext.resume();
 
-            if (recHeld && currentBank === 'C') {
-                // Start Recording to this pad
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    recordedChunks = [];
-                    pad.classList.add('recording'); // Visual feedback on pad
+            if (recArmed && currentBank === 'C') {
+                if (isRecording) {
+                    // Stop Recording
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                } else {
+                    // Start Recording
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        mediaRecorder = new MediaRecorder(stream);
+                        recordedChunks = [];
 
-                    mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
-                    mediaRecorder.onstop = async () => {
-                        const blob = new Blob(recordedChunks, { type: 'audio/ogg; codecs=opus' });
-                        const arrayBuffer = await blob.arrayBuffer();
-                        userSamples[index] = await audioContext.decodeAudioData(arrayBuffer);
-                        pad.classList.remove('recording');
-                    };
+                        pad.classList.add('recording-active');
+                        recBtn.classList.add('active'); // Solid red
+                        isRecording = true;
 
-                    mediaRecorder.start();
-                } catch (err) { console.error(err); }
+                        mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
+                        mediaRecorder.onstop = async () => {
+                            const blob = new Blob(recordedChunks, { type: 'audio/ogg; codecs=opus' });
+                            const arrayBuffer = await blob.arrayBuffer();
+                            userSamples[index] = await audioContext.decodeAudioData(arrayBuffer);
+
+                            pad.classList.remove('recording-active');
+                            recBtn.classList.remove('active');
+                            recBtn.classList.remove('recording'); // Disarm after recording
+                            recArmed = false;
+                            isRecording = false;
+                        };
+
+                        mediaRecorder.start();
+                    } catch (err) { console.error(err); }
+                }
             } else {
-                // Play
+                // Playback
                 playSample(index);
                 pad.classList.add('active');
-            }
-        });
-
-        pad.addEventListener('mouseup', () => {
-            pad.classList.remove('active');
-            if (recHeld && mediaRecorder && mediaRecorder.state === 'recording') {
-                mediaRecorder.stop();
+                setTimeout(() => pad.classList.remove('active'), 100);
             }
         });
     });
@@ -359,21 +375,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!audioContext) return;
         const now = audioContext.currentTime;
 
-        // Bank A: Standard Kit
         if (currentBank === 'A') {
-            if (index === 0) playKick(now, masterGain);
-            if (index === 1) playSnare(now, masterGain);
-            if (index === 2) playHiHat(now, masterGain);
-            if (index === 3) playBass(now, 55, masterGain);
+            if (index === 0) playKick(now, masterGain, 1);
+            if (index === 1) playSnare(now, masterGain, 1);
+            if (index === 2) playHiHat(now, masterGain, 1);
+            if (index === 3) playBass(now, 55, masterGain, 0.5);
         }
-        // Bank B: FX / Synth
         else if (currentBank === 'B') {
             if (index === 0) playAirhorn(now);
             if (index === 1) playLaser(now);
-            if (index === 2) playChord(now, [440, 554, 659]); // A Major
-            if (index === 3) playChord(now, [392, 493, 587]); // G Major
+            if (index === 2) playChord(now, [440, 554, 659]);
+            if (index === 3) playChord(now, [392, 493, 587]);
         }
-        // Bank C: User
         else if (currentBank === 'C') {
             if (userSamples[index]) {
                 const source = audioContext.createBufferSource();
@@ -385,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Synth Functions
+    // --- Synth Functions ---
     function playAirhorn(time) {
         const osc = audioContext.createOscillator();
         const gain = audioContext.createGain();
@@ -428,25 +441,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function playKick(time, gainNode) {
+    function playKick(time, gainNode, velocity = 1) {
         const osc = audioContext.createOscillator();
         const gain = audioContext.createGain();
         osc.connect(gain);
         gain.connect(gainNode);
         osc.frequency.setValueAtTime(150, time);
         osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
-        gain.gain.setValueAtTime(1, time);
+        gain.gain.setValueAtTime(velocity, time);
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
         osc.start(time);
         osc.stop(time + 0.5);
     }
 
-    function playSnare(time, gainNode) {
+    function playSnare(time, gainNode, velocity = 1) {
         const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate);
         const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < noiseBuffer.length; i++) {
-            output[i] = Math.random() * 2 - 1;
-        }
+        for (let i = 0; i < noiseBuffer.length; i++) { output[i] = Math.random() * 2 - 1; }
         const noise = audioContext.createBufferSource();
         noise.buffer = noiseBuffer;
         const noiseFilter = audioContext.createBiquadFilter();
@@ -456,12 +467,12 @@ document.addEventListener('DOMContentLoaded', () => {
         noise.connect(noiseFilter);
         noiseFilter.connect(noiseGain);
         noiseGain.connect(gainNode);
-        noiseGain.gain.setValueAtTime(1, time);
+        noiseGain.gain.setValueAtTime(velocity, time);
         noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
         noise.start(time);
     }
 
-    function playHiHat(time, gainNode) {
+    function playHiHat(time, gainNode, velocity = 1, open = false) {
         const osc = audioContext.createOscillator();
         const gain = audioContext.createGain();
         osc.type = 'square';
@@ -472,13 +483,15 @@ document.addEventListener('DOMContentLoaded', () => {
         osc.connect(filter);
         filter.connect(gain);
         gain.connect(gainNode);
-        gain.gain.setValueAtTime(0.3, time);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+
+        const decay = open ? 0.3 : 0.05;
+        gain.gain.setValueAtTime(velocity * 0.3, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + decay);
         osc.start(time);
-        osc.stop(time + 0.05);
+        osc.stop(time + decay);
     }
 
-    function playBass(time, note, gainNode) {
+    function playBass(time, note, gainNode, velocity = 1) {
         const osc = audioContext.createOscillator();
         const gain = audioContext.createGain();
         osc.type = 'sawtooth';
@@ -490,43 +503,65 @@ document.addEventListener('DOMContentLoaded', () => {
         osc.connect(filter);
         filter.connect(gain);
         gain.connect(gainNode);
-        gain.gain.setValueAtTime(0.5, time);
+        gain.gain.setValueAtTime(velocity * 0.5, time);
         gain.gain.linearRampToValueAtTime(0, time + 0.4);
         osc.start(time);
         osc.stop(time + 0.4);
     }
 
-    function scheduleNote(beatNumber, time) {
-        if (beatNumber % 4 === 0) {
-            playKick(time, deckAGain);
-            playBass(time, 55, deckAGain);
-        }
-        if (beatNumber % 4 === 2) {
-            playSnare(time, deckAGain);
-        }
-        if (beatNumber % 4 === 1 || beatNumber % 4 === 3) {
-            if (Math.random() > 0.5) playKick(time + 0.25, deckAGain);
-        }
-        playHiHat(time, deckAGain);
-        playHiHat(time + 0.25, deckAGain);
+    // --- Sophisticated Beat Engine (16-step) ---
+    // Patterns: [Kick, Snare, Hat, Bass]
+    // 0 = rest, 1 = hit, 0.5 = ghost
 
-        playKick(time, deckBGain);
-        if (beatNumber % 4 === 0) {
-            playBass(time, 40, deckBGain);
-        } else if (beatNumber % 4 === 2) {
-            playBass(time, 80, deckBGain);
+    const patterns = {
+        hiphop: {
+            kick: [1, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+            snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], // Half-time feel
+            hat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1], // 8ths with roll
+            bass: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+        },
+        techno: {
+            kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0], // 4/4
+            snare: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            hat: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0], // Off-beats
+            bass: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]  // Rumble
         }
-        playHiHat(time + 0.25, deckBGain);
+    };
+
+    function scheduleNote(step, time) {
+        // Swing: Delay odd 16th notes (1, 3, 5...)
+        const swingAmount = 0.03; // 30ms swing
+        const isSwing = step % 2 !== 0;
+        const swingTime = isSwing ? time + swingAmount : time;
+
+        // Deck A: Hip Hop
+        const hh = patterns.hiphop;
+        if (hh.kick[step]) playKick(swingTime, deckAGain, hh.kick[step]);
+        if (hh.snare[step]) playSnare(swingTime, deckAGain, hh.snare[step]);
+        if (hh.hat[step]) playHiHat(swingTime, deckAGain, hh.hat[step], false);
+        if (hh.bass[step]) playBass(swingTime, 55, deckAGain, hh.bass[step]);
+
+        // Deck B: Techno
+        const tech = patterns.techno;
+        if (tech.kick[step]) playKick(time, deckBGain, tech.kick[step]); // No swing on techno
+        if (tech.hat[step]) playHiHat(time, deckBGain, tech.hat[step], true); // Open hats
+        if (tech.bass[step]) playBass(time, 40, deckBGain, tech.bass[step]);
     }
 
     function scheduler() {
         while (nextNoteTime < audioContext.currentTime + scheduleAheadTime) {
-            scheduleNote(beatCount, nextNoteTime);
-            nextNoteTime += 60.0 / (tempo * speedSlider.value);
-            beatCount = (beatCount + 1) % 4;
+            scheduleNote(current16thNote, nextNoteTime);
+
+            const secondsPerBeat = 60.0 / (tempo * speedSlider.value);
+            const secondsPer16th = secondsPerBeat / 4;
+
+            nextNoteTime += secondsPer16th;
+            current16thNote = (current16thNote + 1) % 16;
         }
         timerID = requestAnimationFrame(scheduler);
     }
+
+    // --- Transport Logic (Play/Cue) ---
 
     function startPlayback() {
         if (isPlaying) return;
@@ -534,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audioContext.state === 'suspended') audioContext.resume();
 
         isPlaying = true;
-        beatCount = 0;
+        current16thNote = 0;
         nextNoteTime = audioContext.currentTime + 0.1;
 
         playBtn.classList.add('active');
@@ -553,19 +588,49 @@ document.addEventListener('DOMContentLoaded', () => {
         toneArm.classList.remove('active');
     }
 
+    // Play Button: Toggle
     playBtn.addEventListener('click', () => {
         if (isPlaying) stopPlayback();
         else startPlayback();
     });
 
+    // Cue Button: Momentary Play (Standard DJ)
+    // If Paused: Hold to play, Release to stop & return to cue (start).
+    // If Playing: Stop & return to start.
+
     cueBtn.addEventListener('mousedown', () => {
-        if (!isPlaying) startPlayback();
+        initAudio();
+        if (isPlaying) {
+            // If playing, stop and return to start
+            stopPlayback();
+            current16thNote = 0; // Reset
+        } else {
+            // If paused, play while held
+            startPlayback();
+        }
     });
 
     cueBtn.addEventListener('mouseup', () => {
-        if (isPlaying && !playBtn.classList.contains('active')) stopPlayback();
-        else if (isPlaying) stopPlayback();
+        // If we started playback via Cue (and Play button isn't latched), stop on release
+        // We can check if playBtn has 'active' class, but we just added it in startPlayback.
+        // We need a way to know if it was a "Cue Hold" or "Play Toggle".
+        // Simple logic: If Cue is released, and we are playing, stop.
+        // UNLESS Play button was pressed *during* the hold (latching).
+        // But for now, simple momentary behavior:
+
+        // If we are playing, and Play button was NOT clicked (we can't easily track that without state),
+        // let's just say: If Cue released, Stop.
+        // But wait, if we pressed Cue while playing (to stop), we don't want to stop AGAIN (already stopped).
+
+        if (isPlaying && !playBtn.classList.contains('latched')) {
+            stopPlayback();
+            current16thNote = 0; // Return to start
+        }
     });
+
+    // To support "Latch", we'd need Play button to set a flag if pressed while Cue is held.
+    // Let's keep it simple: Cue is momentary play. Play is toggle.
+    // If you press Play, it stays. If you press Cue, it plays until release.
 
     volumeSlider.addEventListener('input', (e) => {
         if (masterGain) masterGain.gain.value = e.target.value;
@@ -573,7 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     speedSlider.addEventListener('input', (e) => {
         const speed = e.target.value;
-        vinylRecord.style.animationDuration = `${2 / speed}s`;
+        vinylRecord.style.animationDuration = `${1.8 / speed}s`;
         bpmDisplay.innerText = `${Math.round(120 * speed)} BPM`;
     });
 
@@ -582,12 +647,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const val = parseFloat(crossfader.value);
         deckAGain.gain.value = 1 - val;
         deckBGain.gain.value = val;
-
         modeDisplay.innerText = val < 0.5 ? "HIP-HOP" : "TECHNO";
     }
     crossfader.addEventListener('input', updateCrossfader);
 
-    // Knob Logic (Generic)
+    // Knob Logic
     function setupKnob(knob, callback) {
         let isDraggingKnob = false;
         let startY;
@@ -610,7 +674,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             knob.style.transform = `rotate(${newVal}deg)`;
 
-            // Normalize to 0-1 or -1 to 1
             const normalized = (newVal + 135) / 270;
             callback(normalized);
         });
@@ -623,7 +686,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Setup Knobs
     setupKnob(eqHighKnob, (val) => { if (eqHigh) eqHigh.gain.value = (val - 0.5) * 40; });
     setupKnob(eqMidKnob, (val) => { if (eqMid) eqMid.gain.value = (val - 0.5) * 40; });
     setupKnob(eqLowKnob, (val) => { if (eqLow) eqLow.gain.value = (val - 0.5) * 40; });
@@ -637,30 +699,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     setupKnob(fxReverbKnob, (val) => {
-        if (reverbGain) reverbGain.gain.value = val * 2; // Boost reverb
+        if (reverbGain) reverbGain.gain.value = val * 2;
     });
 
     setupKnob(fxFilterKnob, (val) => {
         if (filterNode) {
-            // 0-0.45: Lowpass (20Hz - 20kHz)
-            // 0.55-1.0: Highpass (20Hz - 20kHz)
-            // Center (0.45-0.55) is open (allpass)
-
             if (val < 0.45) {
                 filterNode.type = 'lowpass';
-                // Map 0-0.45 to 20-20000
                 const freq = 20 + (val / 0.45) * 20000;
                 filterNode.frequency.value = freq;
                 filterNode.Q.value = 1;
             } else if (val > 0.55) {
                 filterNode.type = 'highpass';
-                // Map 0.55-1.0 to 20-20000
                 const freq = 20 + ((val - 0.55) / 0.45) * 20000;
                 filterNode.frequency.value = freq;
                 filterNode.Q.value = 1;
             } else {
-                filterNode.type = 'allpass'; // Bypass effectively
-                filterNode.frequency.value = 20000; // Ensure it's open
+                filterNode.type = 'allpass';
+                filterNode.frequency.value = 20000;
             }
         }
     });
@@ -683,11 +739,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (let i = 0; i < bufferLength; i++) {
             barHeight = dataArray[i] / 2;
-            // Color based on height
             const r = barHeight + (25 * (i / bufferLength));
             const g = 250 * (i / bufferLength);
             const b = 50;
-
             canvasCtx.fillStyle = `rgb(${r},${g},${b})`;
             canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
             x += barWidth + 1;
