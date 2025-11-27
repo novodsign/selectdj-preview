@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SELECT ACADEMY - DJ Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Background Elements -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="cable cable-1">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0,0 C50,50 50,50 100,100" stroke="black" stroke-width="0.5" fill="none" />
+        </svg>
+    </div>
+
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="#about" class="nav-link">О НАС</a>
+                <a href="#courses" class="nav-link">КУРСЫ</a>
+                <a href="#rent" class="nav-link">АРЕНДА</a>
+                <a href="#gallery" class="nav-link">VIBE</a>
+                <a href="#team" class="nav-link">ПРЕПОДАВАТЕЛИ</a>
+                <a href="#contact" class="nav-link">КОНТАКТЫ</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="section hero">
+            <div class="container hero-container">
+                <div class="hero-logo-wrapper">
+                    <img src="assets/images/selectlogo-nosubtitle.PNG" alt="Select Academy Logo" class="hero-logo">
+                </div>
+                <p class="hero-subtitle">АКАДЕМИЯ ДИДЖЕИНГА В САНКТ-ПЕТЕРБУРГЕ</p>
+                <div class="hero-cta">
+                    <a href="#courses" class="btn btn-primary">
+                        ВЫБРАТЬ КУРС <i class="ph-bold ph-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section about">
+            <div class="container">
+                <h2 class="section-title">О НАС</h2>
+                <div class="about-content">
+                    <div class="about-text-block glass-card">
+                        <p class="lead">«SELECT ACADEMY» — это академия диджеинга, созданная при поддержке <a
+                                href="https://t.me/vnvnc_spb" target="_blank">@vnvnc_spb</a> <i
+                                class="ph-fill ph-disc"></i></p>
+                        <p>Наша академия — место встречи тех, кто влюблен в музыку, хочет обучиться диджеингу,
+                            попрактиковаться самостоятельно и стать частью большого творческого коммьюнити VNVNC concert
+                            hall.</p>
+                        <ul class="styled-list">
+                            <li><i class="ph-bold ph-caret-right"></i> 8 лет клуб VNVNC concert hall является одним из
+                                лучших клубов Санкт-Петербурга</li>
+                            <li><i class="ph-bold ph-caret-right"></i> Выступают известные диджеи и популярные артисты
+                            </li>
+                            <li><i class="ph-bold ph-caret-right"></i> Команда клуба растит молодых и талантливых
+                                музыкантов</li>
+                        </ul>
+                    </div>
+                    <div class="about-image-block">
+                        <img src="assets/images/aboutus.png" alt="About Us" class="floating-image">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Clubs Ticker -->
+        <div class="clubs-ticker">
+            <div class="ticker-content">
+                <span class="ticker-item">VNVNC CONCERT HALL</span>
+                <span class="ticker-item">DK</span>
+                <span class="ticker-item">812 BAR</span>
+                <span class="ticker-item">UNION</span>
+                <span class="ticker-item">BLANK</span>
+                <span class="ticker-item">VNVNC CONCERT HALL</span>
+                <span class="ticker-item">DK</span>
+                <span class="ticker-item">812 BAR</span>
+                <span class="ticker-item">UNION</span>
+                <span class="ticker-item">BLANK</span>
+            </div>
+        </div>
+
+        <!-- Courses Section (Redesigned with Image Cards) -->
+        <section id="courses" class="section courses">
+            <div class="container">
+                <h2 class="section-title">КУРСЫ</h2>
+
+                <div class="courses-grid">
+                    <!-- Basic Course -->
+                    <div class="course-card">
+                        <div class="course-image-wrapper">
+                            <img src="assets/images/basic.jpeg" alt="Basic Course">
+                        </div>
+                        <div class="course-info">
+                            <div class="course-header">
+                                <h3>КУРС<br>BASIC</h3>
+                                <span class="price">40 000 ₽</span>
+                            </div>
+                            <p class="course-desc">С нуля до уровня «про» за 3 месяца.</p>
+                            <a href="https://t.me/darina_rebel" class="btn btn-secondary">ПОДРОБНЕЕ</a>
+                        </div>
+                    </div>
+
+                    <!-- Expert Course -->
+                    <div class="course-card">
+                        <div class="course-image-wrapper">
+                            <img src="assets/images/expert.jpeg" alt="Expert Course">
+                        </div>
+                        <div class="course-info">
+                            <div class="course-header">
+                                <h3>КУРС<br>EXPERT</h3>
+                                <span class="price">15 000 ₽</span>
+                            </div>
+                            <p class="course-desc">Повышение квалификации и новые фишки.</p>
+                            <a href="https://t.me/darina_rebel" class="btn btn-secondary">ПОДРОБНЕЕ</a>
+                        </div>
+                    </div>
+
+                    <!-- Single Lesson -->
+                    <div class="course-card">
+                        <div class="course-image-wrapper">
+                            <img src="assets/images/singlelesson.jpeg" alt="Single Lesson">
+                        </div>
+                        <div class="course-info">
+                            <div class="course-header">
+                                <h3>РАЗОВОЕ<br>ЗАНЯТИЕ</h3>
+                                <span class="price">3 000 ₽</span>
+                            </div>
+                            <p class="course-desc">Закрыть вопросы и получить знания.</p>
+                            <a href="https://t.me/darina_rebel" class="btn btn-secondary">ПОДРОБНЕЕ</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rent Section -->
+        <section id="rent" class="section rent">
+            <div class="container">
+                <h2 class="section-title">АРЕНДА</h2>
+                <div class="rent-content glass-card">
+                    <div class="rent-text">
+                        <h3>САМОСТОЯТЕЛЬНАЯ ТРЕНИРОВКА</h3>
+                        <p>Для того, чтобы прокачать свои диджейские навыки, а также самостоятельно потренироваться на
+                            профессиональном оборудовании.</p>
+                        <div class="price-tag">500 ₽ / час</div>
+                    </div>
+                    <div class="rent-image">
+                        <img src="assets/images/rent.jpeg" alt="Rent Equipment">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section (Vibe ONLY) -->
+        <section id="gallery" class="section gallery">
+            <div class="container">
+                <h2 class="section-title">VIBE</h2>
+                <div class="gallery-grid">
+                    <!-- Only party/vibe photos -->
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.27 (1).jpeg" alt="Vibe">
+                    </div>
+                    <div class="gallery-item"><img src="assets/images/dj.jpeg" alt="Vibe"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.28.jpeg" alt="Vibe"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.29.jpeg" alt="Vibe"></div>
+                    <div class="gallery-item"><img src="assets/images/dj2.jpeg" alt="Vibe"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="Vibe"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section id="team" class="section team">
+            <div class="container">
+                <h2 class="section-title">НАШИ ПРЕПОДАВАТЕЛИ</h2>
+                <div class="team-intro glass-card">
+                    <p>Наши преподаватели — профессионалы, резиденты <strong>VNVNC, DK, 812 bar</strong>.</p>
+                    <p>Делили сцену с <strong>ЛСП, Pharaoh, BUSHIDO ZHO, OG BUDA, Lovv66, Yanix</strong>.</p>
+                </div>
+
+                <div class="team-grid">
+                    <!-- Team Photos -->
+                    <div class="team-card"><img src="assets/images/photo_2025-11-27 21.16.23.jpeg" alt="DJ"></div>
+                    <div class="team-card"><img src="assets/images/photo_2025-11-27 21.16.25.jpeg" alt="DJ"></div>
+                    <!-- Replaced/Removed broken links -->
+                    <div class="team-card"><img src="assets/images/dj.jpeg" alt="DJ"></div>
+                    <div class="team-card"><img src="assets/images/dj2.jpeg" alt="DJ"></div>
+                    <div class="team-card"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="DJ"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="section">
+            <div class="container">
+                <div class="cta-section">
+                    <h2>ХОЧЕШЬ ПОПРОБОВАТЬ?</h2>
+                    <p>Запишись на бесплатное пробное занятие и почувствуй себя диджеем уже сегодня!</p>
+                    <a href="https://t.me/darina_rebel" target="_blank" class="btn cta-btn">
+                        ЗАПИСАТЬСЯ НА ПРОБНОЕ <i class="ph-bold ph-lightning"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section contact">
+            <div class="container">
+                <h2 class="section-title">КОНТАКТЫ</h2>
+
+                <div class="contact-container">
+                    <!-- Contact Form -->
+                    <div class="contact-form-wrapper">
+                        <form action="#" method="POST">
+                            <div class="form-group">
+                                <label for="name">ИМЯ</label>
+                                <input type="text" id="name" class="form-control" placeholder="Как к вам обращаться?">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">ТЕЛЕФОН</label>
+                                <input type="tel" id="phone" class="form-control" placeholder="+7 (999) 000-00-00">
+                            </div>
+                            <div class="form-group">
+                                <label for="telegram">TELEGRAM</label>
+                                <input type="text" id="telegram" class="form-control" placeholder="@username">
+                            </div>
+                            <button type="submit" class="btn submit-btn">ОТПРАВИТЬ ЗАЯВКУ</button>
+                        </form>
+                    </div>
+
+                    <!-- Map and Links -->
+                    <div class="contact-info">
+                        <div class="map-wrapper">
+                            <!-- Yandex Map Embed -->
+                            <div style="position:relative;overflow:hidden;"><a
+                                    href="https://yandex.ru/maps/2/saint-petersburg/?utm_medium=mapframe&utm_source=maps"
+                                    style="color:#eee;font-size:12px;position:absolute;top:0px;">Санкт‑Петербург</a><a
+                                    href="https://yandex.ru/maps/2/saint-petersburg/house/konyushennaya_ploshchad_2b/Z0kYdQJoSE0DQFtjfXVydH1hZQ==/?ll=30.326373%2C59.941657&utm_medium=mapframe&utm_source=maps&z=17.09"
+                                    style="color:#eee;font-size:12px;position:absolute;top:14px;">Конюшенная площадь, 2В
+                                    — Яндекс Карты</a><iframe
+                                    src="https://yandex.ru/map-widget/v1/?ll=30.326373%2C59.941657&mode=search&ol=geo&ouri=ymapsbm1%3A%2F%2Fgeo%3Fdata%3DCgg1NzQ1MTU4ORJC0KDQvtGB0YHQuNGPLCDQodCw0L3QutGCLdCf0LXRgtC10YDQsdGD0YDQsywg0JrQvtC90Y7RiNC10L3QvdCw0Y8g0L_Qu9C-0YnQsNC00YwsIDLQkiIKDV988EEV_1F1Qg%2C%2C&z=17.09"
+                                    width="100%" height="300" frameborder="0" allowfullscreen="true"
+                                    style="position:relative;"></iframe></div>
+                        </div>
+
+                        <div class="contact-links">
+                            <a href="https://t.me/select_djacademy" target="_blank" class="contact-btn telegram">
+                                <i class="ph-bold ph-telegram-logo"></i> TELEGRAM
+                            </a>
+                            <a href="https://www.instagram.com/select.dj/" target="_blank"
+                                class="contact-btn instagram">
+                                <i class="ph-bold ph-instagram-logo"></i> INSTAGRAM
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="footer">
+                    <p class="footer-address">Санкт-Петербург, Конюшенная площадь, 2В</p>
+                    <p>&copy; 2025 SELECT ACADEMY.</p>
+                </footer>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
