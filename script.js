@@ -121,21 +121,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const speedSlider = document.getElementById('speedSlider');
     const volumeSlider = document.getElementById('volumeSlider');
     const crossfader = document.getElementById('crossfader');
-    const statusLight = document.getElementById('statusLight');
 
     // EQ Knobs
     const eqHighKnob = document.getElementById('eqHigh');
     const eqMidKnob = document.getElementById('eqMid');
     const eqLowKnob = document.getElementById('eqLow');
 
+    // FX Knobs
+    const fxCrushKnob = document.getElementById('fxCrush');
+    const fxDelayKnob = document.getElementById('fxDelay');
+
+    // Display & Visualizer
+    const bpmDisplay = document.getElementById('bpmDisplay');
+    const modeDisplay = document.getElementById('modeDisplay');
+    const canvas = document.getElementById('visualizer');
+    const canvasCtx = canvas.getContext('2d');
+
+    // Pads
+    const pads = document.querySelectorAll('.te-pad');
+
     let isPlaying = false;
     let audioContext;
     let masterGain;
     let deckAGain;
     let deckBGain;
+    let analyser;
 
     // EQ Nodes
     let eqHigh, eqMid, eqLow;
+
+    // FX Nodes
+    let bitcrusher, delayNode, delayFeedback, delayGain;
 
     // Beat State
     let nextNoteTime = 0.0;
@@ -159,8 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Master Chain
             masterGain = audioContext.createGain();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
 
-            // EQ Chain
+            // FX Chain: EQ -> Bitcrusher -> Delay -> Master
+
+            // EQ
             eqHigh = audioContext.createBiquadFilter();
             eqHigh.type = 'highshelf';
             eqHigh.frequency.value = 3000;
@@ -174,39 +194,63 @@ document.addEventListener('DOMContentLoaded', () => {
             eqLow.type = 'lowshelf';
             eqLow.frequency.value = 300;
 
-            // Connect EQ: Low -> Mid -> High -> Master
-            eqLow.connect(eqMid);
-            eqMid.connect(eqHigh);
-            eqHigh.connect(masterGain);
-            masterGain.connect(audioContext.destination);
+            // Bitcrusher (ScriptProcessor or AudioWorklet - using simplified approach for now)
+            // Actually, let's use a highpass/lowpass combo or distortion for "Crush" to keep it simple without worklets
+            // Or a WaveShaper
+            bitcrusher = audioContext.createWaveShaper();
+            bitcrusher.curve = makeDistortionCurve(0); // Start with 0 distortion
+            bitcrusher.oversample = '4x';
 
-            // Decks connect to EQ Low
+            // Delay
+            delayNode = audioContext.createDelay();
+            delayNode.delayTime.value = 0.5; // 500ms
+            delayFeedback = audioContext.createGain();
+            delayFeedback.gain.value = 0.4;
+            delayGain = audioContext.createGain();
+            delayGain.gain.value = 0; // Start dry
+
+            // Connections
+            // Decks -> EQ Low
             deckAGain = audioContext.createGain();
             deckBGain = audioContext.createGain();
 
             deckAGain.connect(eqLow);
             deckBGain.connect(eqLow);
 
+            eqLow.connect(eqMid);
+            eqMid.connect(eqHigh);
+            eqHigh.connect(bitcrusher);
+
+            // Split to Delay
+            bitcrusher.connect(masterGain);
+            bitcrusher.connect(delayNode);
+
+            delayNode.connect(delayFeedback);
+            delayFeedback.connect(delayNode);
+            delayFeedback.connect(delayGain);
+            delayGain.connect(masterGain);
+
+            masterGain.connect(analyser);
+            analyser.connect(audioContext.destination);
+
             // Initial Mix
             updateCrossfader();
 
-            // Scratch Setup
-            setupScratch();
+            // Start Visualizer
+            drawVisualizer();
         }
     }
 
-    function setupScratch() {
-        // Create a buffer with pink noise for better scratch sound
-        const bufferSize = audioContext.sampleRate * 2;
-        const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            const white = Math.random() * 2 - 1;
-            data[i] = (lastOut + (0.02 * white)) / 1.02;
-            lastOut = data[i];
-            data[i] *= 3.5; // Compensate for gain loss
+    function makeDistortionCurve(amount) {
+        const k = typeof amount === 'number' ? amount : 50;
+        const n_samples = 44100;
+        const curve = new Float32Array(n_samples);
+        const deg = Math.PI / 180;
+        for (let i = 0; i < n_samples; ++i) {
+            const x = i * 2 / n_samples - 1;
+            curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
         }
-        // Actually just use white noise filtered
+        return curve;
     }
 
     let lastOut = 0;
@@ -241,13 +285,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const gain = audioContext.createGain();
         osc.connect(gain);
         gain.connect(gainNode);
-
         osc.frequency.setValueAtTime(150, time);
         osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
-
         gain.gain.setValueAtTime(1, time);
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
-
         osc.start(time);
         osc.stop(time + 0.5);
     }
@@ -264,14 +305,11 @@ document.addEventListener('DOMContentLoaded', () => {
         noiseFilter.type = 'highpass';
         noiseFilter.frequency.value = 1000;
         const noiseGain = audioContext.createGain();
-
         noise.connect(noiseFilter);
         noiseFilter.connect(noiseGain);
         noiseGain.connect(gainNode);
-
         noiseGain.gain.setValueAtTime(1, time);
         noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
-
         noise.start(time);
     }
 
@@ -279,20 +317,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const osc = audioContext.createOscillator();
         const gain = audioContext.createGain();
         osc.type = 'square';
-        // High frequency for metallic sound
         osc.frequency.setValueAtTime(8000, time);
-
         const filter = audioContext.createBiquadFilter();
         filter.type = 'highpass';
         filter.frequency.value = 7000;
-
         osc.connect(filter);
         filter.connect(gain);
         gain.connect(gainNode);
-
         gain.gain.setValueAtTime(0.3, time);
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
-
         osc.start(time);
         osc.stop(time + 0.05);
     }
@@ -302,64 +335,46 @@ document.addEventListener('DOMContentLoaded', () => {
         const gain = audioContext.createGain();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(note, time);
-
         const filter = audioContext.createBiquadFilter();
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(400, time);
         filter.Q.value = 5;
-
         osc.connect(filter);
         filter.connect(gain);
         gain.connect(gainNode);
-
         gain.gain.setValueAtTime(0.5, time);
         gain.gain.linearRampToValueAtTime(0, time + 0.4);
-
         osc.start(time);
         osc.stop(time + 0.4);
     }
 
     function scheduleNote(beatNumber, time) {
-        // Beat A: Old School Hip Hop (90 BPM feel)
-        // Kick: 1, 3 (with swing)
-        // Snare: 2, 4
-        // HiHat: 8th notes
-
-        // Beat B: House / Techno (4/4)
-        // Kick: 1, 2, 3, 4
-        // Snare: -
-        // HiHat: Off-beats
-
-        // --- Deck A (Hip Hop) ---
         if (beatNumber % 4 === 0) {
-            playKick(time, deckAGain); // Beat 1
-            playBass(time, 55, deckAGain); // A1
+            playKick(time, deckAGain);
+            playBass(time, 55, deckAGain);
         }
         if (beatNumber % 4 === 2) {
-            playSnare(time, deckAGain); // Beat 3 (Snare)
+            playSnare(time, deckAGain);
         }
         if (beatNumber % 4 === 1 || beatNumber % 4 === 3) {
-            // Syncopated kicks for hip hop feel
             if (Math.random() > 0.5) playKick(time + 0.25, deckAGain);
         }
-        // HiHats every 8th
         playHiHat(time, deckAGain);
         playHiHat(time + 0.25, deckAGain);
 
-        // --- Deck B (House/Techno) ---
-        playKick(time, deckBGain); // 4-on-the-floor
+        playKick(time, deckBGain);
         if (beatNumber % 4 === 0) {
-            playBass(time, 40, deckBGain); // Low E
+            playBass(time, 40, deckBGain);
         } else if (beatNumber % 4 === 2) {
-            playBass(time, 80, deckBGain); // Octave up
+            playBass(time, 80, deckBGain);
         }
-        playHiHat(time + 0.25, deckBGain); // Off-beat open hat feel
+        playHiHat(time + 0.25, deckBGain);
     }
 
     function scheduler() {
         while (nextNoteTime < audioContext.currentTime + scheduleAheadTime) {
             scheduleNote(beatCount, nextNoteTime);
-            nextNoteTime += 60.0 / (tempo * speedSlider.value); // Adjust for pitch slider
+            nextNoteTime += 60.0 / (tempo * speedSlider.value);
             beatCount = (beatCount + 1) % 4;
         }
         timerID = requestAnimationFrame(scheduler);
@@ -368,11 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function startPlayback() {
         if (isPlaying) return;
         initAudio();
-
-        // Resume context if suspended
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
+        if (audioContext.state === 'suspended') audioContext.resume();
 
         isPlaying = true;
         beatCount = 0;
@@ -381,7 +392,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playBtn.classList.add('active');
         vinylRecord.classList.add('spinning');
         toneArm.classList.add('active');
-        statusLight.classList.add('active');
 
         scheduler();
     }
@@ -393,7 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playBtn.classList.remove('active');
         vinylRecord.classList.remove('spinning');
         toneArm.classList.remove('active');
-        statusLight.classList.remove('active');
     }
 
     playBtn.addEventListener('click', () => {
@@ -401,95 +410,37 @@ document.addEventListener('DOMContentLoaded', () => {
         else startPlayback();
     });
 
-    // Cue Button (Hold to Play)
     cueBtn.addEventListener('mousedown', () => {
-        if (!isPlaying) {
-            startPlayback();
-            // Cue mode: only play while held, so we don't toggle UI state fully or we do?
-            // Let's just start playback but mark it as temporary
-        }
+        if (!isPlaying) startPlayback();
     });
 
     cueBtn.addEventListener('mouseup', () => {
-        if (isPlaying && !playBtn.classList.contains('active')) {
-            // If it was started by Cue (playBtn not 'active' logic is tricky here, let's simplify)
-            // Actually, if we just started it, stop it.
-            stopPlayback();
-        } else if (isPlaying) {
-            // If it was already playing, Cue usually stops and resets to cue point.
-            stopPlayback();
-        }
+        if (isPlaying && !playBtn.classList.contains('active')) stopPlayback();
+        else if (isPlaying) stopPlayback();
     });
 
-    // Volume
     volumeSlider.addEventListener('input', (e) => {
         if (masterGain) masterGain.gain.value = e.target.value;
     });
 
-    // Pitch Control
     speedSlider.addEventListener('input', (e) => {
         const speed = e.target.value;
         vinylRecord.style.animationDuration = `${2 / speed}s`;
-        // The scheduler already uses speedSlider.value for tempo adjustment
+        bpmDisplay.innerText = `${Math.round(120 * speed)} BPM`;
     });
 
-    // Crossfader
     function updateCrossfader() {
         if (!deckAGain || !deckBGain) return;
         const val = parseFloat(crossfader.value);
-        // Simple linear crossfade
-        // val = 0 -> Deck A = 1, Deck B = 0
-        // val = 1 -> Deck A = 0, Deck B = 1
         deckAGain.gain.value = 1 - val;
         deckBGain.gain.value = val;
+
+        modeDisplay.innerText = val < 0.5 ? "HIP-HOP" : "TECHNO";
     }
     crossfader.addEventListener('input', updateCrossfader);
 
-    // Knob Logic
-    function setupKnob(knob, filterNode, type) {
-        let isDraggingKnob = false;
-        let startY;
-        let startVal;
-
-        knob.addEventListener('mousedown', (e) => {
-            isDraggingKnob = true;
-            startY = e.clientY;
-            // Get current rotation
-            const transform = knob.style.transform || 'rotate(0deg)';
-            startVal = parseInt(transform.replace('rotate(', '').replace('deg)', '')) || 0;
-            document.body.style.cursor = 'ns-resize';
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (!isDraggingKnob) return;
-            e.preventDefault();
-            const delta = startY - e.clientY;
-            let newVal = startVal + delta * 2;
-            newVal = Math.max(-135, Math.min(135, newVal)); // Limit rotation
-
-            knob.style.transform = `rotate(${newVal}deg)`;
-
-            // Map rotation (-135 to 135) to gain (-20dB to 20dB)
-            if (filterNode) {
-                const gain = (newVal / 135) * 20;
-                filterNode.gain.value = gain;
-            }
-        });
-
-        window.addEventListener('mouseup', () => {
-            if (isDraggingKnob) {
-                isDraggingKnob = false;
-                document.body.style.cursor = '';
-            }
-        });
-    }
-
-    // Initialize Knobs when audio is ready (or just setup listeners now and link later)
-    // We need to link them after initAudio.
-    // Let's wrap setupKnob calls in initAudio or check for existence.
-    // Actually, we can setup listeners now and check `eqHigh` inside the listener.
-
-    [eqHighKnob, eqMidKnob, eqLowKnob].forEach((knob, i) => {
+    // Knob Logic (Generic)
+    function setupKnob(knob, callback) {
         let isDraggingKnob = false;
         let startY;
         let startVal;
@@ -511,12 +462,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             knob.style.transform = `rotate(${newVal}deg)`;
 
-            if (audioContext) {
-                const gain = (newVal / 135) * 20;
-                if (i === 0 && eqHigh) eqHigh.gain.value = gain;
-                if (i === 1 && eqMid) eqMid.gain.value = gain;
-                if (i === 2 && eqLow) eqLow.gain.value = gain;
-            }
+            // Normalize to 0-1 or -1 to 1
+            const normalized = (newVal + 135) / 270;
+            callback(normalized);
         });
 
         window.addEventListener('mouseup', () => {
@@ -525,7 +473,80 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.style.cursor = '';
             }
         });
+    }
+
+    // Setup Knobs
+    setupKnob(eqHighKnob, (val) => { if (eqHigh) eqHigh.gain.value = (val - 0.5) * 40; });
+    setupKnob(eqMidKnob, (val) => { if (eqMid) eqMid.gain.value = (val - 0.5) * 40; });
+    setupKnob(eqLowKnob, (val) => { if (eqLow) eqLow.gain.value = (val - 0.5) * 40; });
+
+    setupKnob(fxCrushKnob, (val) => {
+        if (bitcrusher) bitcrusher.curve = makeDistortionCurve(val * 400);
     });
+
+    setupKnob(fxDelayKnob, (val) => {
+        if (delayGain) delayGain.gain.value = val;
+    });
+
+    // Pads Logic
+    pads.forEach(pad => {
+        pad.addEventListener('mousedown', () => {
+            initAudio();
+            const type = pad.dataset.sample;
+            playSample(type);
+            pad.style.transform = 'scale(0.95)';
+            setTimeout(() => pad.style.transform = '', 100);
+        });
+    });
+
+    function playSample(type) {
+        if (!audioContext) return;
+        const now = audioContext.currentTime;
+
+        if (type === 'kick') playKick(now, masterGain);
+        if (type === 'snare') playSnare(now, masterGain);
+        if (type === 'hat') playHiHat(now, masterGain);
+        if (type === 'airhorn') {
+            // Simple Airhorn Synth
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.linearRampToValueAtTime(800, now + 0.3);
+
+            gain.gain.setValueAtTime(0.5, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.5);
+
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        }
+    }
+
+    // Visualizer
+    function drawVisualizer() {
+        requestAnimationFrame(drawVisualizer);
+        if (!analyser) return;
+
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyser.getByteFrequencyData(dataArray);
+
+        canvasCtx.fillStyle = '#000';
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let barHeight;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+            barHeight = dataArray[i] / 2;
+            canvasCtx.fillStyle = '#00ff41'; // Matrix Green
+            canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+            x += barWidth + 1;
+        }
+    }
 
     // Scratching
     vinylRecord.addEventListener('mousedown', (e) => {
@@ -533,7 +554,6 @@ document.addEventListener('DOMContentLoaded', () => {
         lastMouseX = e.clientX;
         lastMouseY = e.clientY;
         vinylRecord.classList.remove('spinning');
-
         const rect = vinylRecord.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
@@ -543,7 +563,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         e.preventDefault();
-
         const rect = vinylRecord.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
@@ -556,11 +575,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentRotation += delta * (180 / Math.PI);
         vinylRecord.style.transform = `rotate(${currentRotation}deg)`;
 
-        // Scratch Sound
         const velocity = Math.abs(delta) * 100;
-        if (velocity > 1) {
-            createScratchSound(velocity);
-        }
+        if (velocity > 1) createScratchSound(velocity);
 
         lastAngle = angle;
     });

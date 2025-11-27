@@ -230,77 +230,113 @@
         <section id="playground" class="section playground">
             <div class="container">
                 <!-- Removed Title as requested -->
-                <div class="deck-wrapper glass-card reveal">
-                    <div class="dj-deck">
-                        <div class="deck-body">
-                            <div class="platter-container">
-                                <div class="platter">
-                                    <div class="vinyl-record" id="vinylRecord">
-                                        <div class="vinyl-label"
-                                            style="background-image: url('assets/images/selectlogo-nosubtitle.PNG'); background-size: cover; background-position: center;">
-                                        </div>
-                                        <div class="vinyl-grooves"></div>
-                                    </div>
+                <div class="deck-wrapper te-wrapper">
+                    <div class="te-casing">
+                        <!-- Top Bar: Screen & Branding -->
+                        <div class="te-top-bar">
+                            <div class="te-branding">
+                                <span class="brand-name">SELECT</span>
+                                <span class="model-name">OP-DJ</span>
+                            </div>
+                            <div class="te-screen" id="oledDisplay">
+                                <div class="screen-header">
+                                    <span id="bpmDisplay">120 BPM</span>
+                                    <span id="modeDisplay">HIP-HOP</span>
                                 </div>
-                                <div class="tone-arm" id="toneArm">
-                                    <div class="arm-base"></div>
-                                    <div class="arm-stick"></div>
-                                    <div class="arm-head"></div>
+                                <canvas id="visualizer" width="200" height="40"></canvas>
+                                <div class="screen-footer">
+                                    <span class="status-text">READY</span>
                                 </div>
                             </div>
-                            <div class="deck-controls">
-                                <div class="control-group">
-                                    <button id="playBtn" class="deck-btn play-btn">
+                            <div class="te-speaker-grill">
+                                <!-- Visual decoration -->
+                                <span></span><span></span><span></span><span></span>
+                                <span></span><span></span><span></span><span></span>
+                            </div>
+                        </div>
+
+                        <!-- Main Controls Grid -->
+                        <div class="te-grid">
+                            <!-- Left: Platter & Transport -->
+                            <div class="te-module platter-module">
+                                <div class="platter-container">
+                                    <div class="platter">
+                                        <div class="vinyl-record" id="vinylRecord">
+                                            <div class="vinyl-label">
+                                                <img src="assets/images/selectlogo-nosubtitle.PNG" alt="Logo"
+                                                    style="width: 100%; height: 100%; object-fit: contain; opacity: 0.8;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tone-arm" id="toneArm">
+                                        <div class="arm-base"></div>
+                                        <div class="arm-stick"></div>
+                                        <div class="arm-head"></div>
+                                    </div>
+                                </div>
+                                <div class="transport-controls">
+                                    <button class="te-btn play-btn" id="playBtn">
                                         <i class="ph-fill ph-play"></i>
                                     </button>
-                                    <button id="cueBtn" class="deck-btn cue-btn">
-                                        CUE
-                                    </button>
+                                    <button class="te-btn cue-btn" id="cueBtn">CUE</button>
                                 </div>
+                            </div>
 
-                                <div class="slider-group">
-                                    <label>VOLUME</label>
-                                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8">
-                                </div>
-
-                                <div class="slider-group">
-                                    <label>PITCH</label>
-                                    <div class="pitch-fader-wrapper">
-                                        <input type="range" id="speedSlider" class="pitch-fader" min="0.5" max="1.5"
-                                            step="0.01" value="1">
+                            <!-- Middle: Mixer (EQ & Faders) -->
+                            <div class="te-module mixer-module">
+                                <div class="te-label-group">EQ / MIX</div>
+                                <div class="eq-column">
+                                    <div class="te-knob-wrapper">
+                                        <div class="te-knob red" id="eqHigh"></div>
+                                        <label>HI</label>
                                     </div>
-                                </div>
-
-                                <div class="eq-group">
-                                    <div class="knob-wrapper">
-                                        <div class="knob" id="eqHigh">
-                                            <div class="knob-indicator"></div>
-                                        </div>
-                                        <label>HIGH</label>
-                                    </div>
-                                    <div class="knob-wrapper">
-                                        <div class="knob" id="eqMid">
-                                            <div class="knob-indicator"></div>
-                                        </div>
+                                    <div class="te-knob-wrapper">
+                                        <div class="te-knob green" id="eqMid"></div>
                                         <label>MID</label>
                                     </div>
-                                    <div class="knob-wrapper">
-                                        <div class="knob" id="eqLow">
-                                            <div class="knob-indicator"></div>
-                                        </div>
+                                    <div class="te-knob-wrapper">
+                                        <div class="te-knob blue" id="eqLow"></div>
                                         <label>LOW</label>
                                     </div>
                                 </div>
-
-                                <div class="crossfader-group">
-                                    <input type="range" id="crossfader" min="0" max="1" step="0.01" value="0.5">
-                                    <div class="crossfader-labels">
-                                        <span>A</span>
-                                        <span>B</span>
+                                <div class="fader-column">
+                                    <div class="te-fader-wrapper">
+                                        <input type="range" id="volumeSlider" class="te-fader vertical" min="0" max="1"
+                                            step="0.01" value="0.8">
+                                        <label>VOL</label>
+                                    </div>
+                                    <div class="te-fader-wrapper">
+                                        <input type="range" id="speedSlider" class="te-fader vertical" min="0.5"
+                                            max="1.5" step="0.01" value="1">
+                                        <label>PITCH</label>
                                     </div>
                                 </div>
+                                <div class="crossfader-area">
+                                    <input type="range" id="crossfader" class="te-crossfader" min="0" max="1"
+                                        step="0.01" value="0.5">
+                                    <div class="xf-labels"><span>A</span><span>B</span></div>
+                                </div>
+                            </div>
 
-                                <div class="status-light" id="statusLight"></div>
+                            <!-- Right: FX & Sampler -->
+                            <div class="te-module fx-module">
+                                <div class="te-label-group">FX / SAMPLER</div>
+                                <div class="fx-controls">
+                                    <div class="te-knob-wrapper">
+                                        <div class="te-knob orange" id="fxCrush"></div>
+                                        <label>CRUSH</label>
+                                    </div>
+                                    <div class="te-knob-wrapper">
+                                        <div class="te-knob white" id="fxDelay"></div>
+                                        <label>DELAY</label>
+                                    </div>
+                                </div>
+                                <div class="sampler-pads">
+                                    <button class="te-pad" data-sample="kick">1</button>
+                                    <button class="te-pad" data-sample="snare">2</button>
+                                    <button class="te-pad" data-sample="hat">3</button>
+                                    <button class="te-pad" data-sample="airhorn">4</button>
+                                </div>
                             </div>
                         </div>
                     </div>
