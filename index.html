@@ -318,29 +318,54 @@
                                 </div>
                             </div>
 
-                            <!-- Right: FX & Sampler -->
+                            <!-- FX & Sampler Module -->
                             <div class="te-module fx-module">
-                                <div class="te-label-group">FX / SAMPLER</div>
+                                <div class="te-label-group">FX / Sampler</div>
+
+                                <!-- FX Controls -->
                                 <div class="fx-controls">
                                     <div class="te-knob-wrapper">
-                                        <div class="te-knob orange" id="fxCrush"></div>
+                                        <div class="te-knob red" id="fxCrush"></div>
                                         <label>CRUSH</label>
                                     </div>
                                     <div class="te-knob-wrapper">
-                                        <div class="te-knob white" id="fxDelay"></div>
+                                        <div class="te-knob blue" id="fxDelay"></div>
                                         <label>DELAY</label>
                                     </div>
+                                    <div class="te-knob-wrapper">
+                                        <div class="te-knob green" id="fxReverb"></div>
+                                        <label>REVERB</label>
+                                    </div>
+                                    <div class="te-knob-wrapper">
+                                        <div class="te-knob orange" id="fxFilter"></div>
+                                        <label>FILTER</label>
+                                    </div>
                                 </div>
+
+                                <!-- Sampler Controls -->
+                                <div class="sampler-controls" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                    <button class="te-btn-small" id="recBtn" title="Hold to Record">
+                                        <i class="ph ph-microphone"></i>
+                                    </button>
+                                    <button class="te-btn-small" id="loopBtn" title="Toggle Loop Mode">
+                                        <i class="ph ph-repeat"></i>
+                                    </button>
+                                    <button class="te-btn-small" id="bankBtn" title="Switch Bank">
+                                        BANK A
+                                    </button>
+                                </div>
+
                                 <div class="sampler-pads">
-                                    <button class="te-pad" data-sample="kick">1</button>
-                                    <button class="te-pad" data-sample="snare">2</button>
-                                    <button class="te-pad" data-sample="hat">3</button>
-                                    <button class="te-pad" data-sample="airhorn">4</button>
+                                    <button class="te-pad" data-pad="0">1</button>
+                                    <button class="te-pad" data-pad="1">2</button>
+                                    <button class="te-pad" data-pad="2">3</button>
+                                    <button class="te-pad" data-pad="3">4</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
         </section>
 

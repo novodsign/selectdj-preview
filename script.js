@@ -130,15 +130,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // FX Knobs
     const fxCrushKnob = document.getElementById('fxCrush');
     const fxDelayKnob = document.getElementById('fxDelay');
+    const fxReverbKnob = document.getElementById('fxReverb');
+    const fxFilterKnob = document.getElementById('fxFilter');
+
+    // Sampler Controls
+    const recBtn = document.getElementById('recBtn');
+    const loopBtn = document.getElementById('loopBtn');
+    const bankBtn = document.getElementById('bankBtn');
+    const pads = document.querySelectorAll('.te-pad');
 
     // Display & Visualizer
     const bpmDisplay = document.getElementById('bpmDisplay');
     const modeDisplay = document.getElementById('modeDisplay');
     const canvas = document.getElementById('visualizer');
     const canvasCtx = canvas.getContext('2d');
-
-    // Pads
-    const pads = document.querySelectorAll('.te-pad');
 
     let isPlaying = false;
     let audioContext;
@@ -152,13 +157,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // FX Nodes
     let bitcrusher, delayNode, delayFeedback, delayGain;
+    let reverbNode, reverbGain;
+    let filterNode;
+
+    // Sampler State
+    let currentBank = 'A'; // A, B, C (User)
+    let isLooping = false;
+    let isRecording = false;
+    let mediaRecorder;
+    let recordedChunks = [];
+    let userSamples = [null, null, null, null]; // Buffers for Bank C
 
     // Beat State
     let nextNoteTime = 0.0;
     let beatCount = 0;
     let tempo = 120;
     let timerID;
-    const lookahead = 25.0;
     const scheduleAheadTime = 0.1;
 
     // Scratch Variables
@@ -167,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRotation = 0;
     let lastMouseX = 0;
     let lastMouseY = 0;
-    let scratchSource;
 
     function initAudio() {
         if (!audioContext) {
@@ -178,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 256;
 
-            // FX Chain: EQ -> Bitcrusher -> Delay -> Master
+            // FX Chain: EQ -> Filter -> Bitcrusher -> Delay -> Reverb -> Master
 
             // EQ
             eqHigh = audioContext.createBiquadFilter();
@@ -194,49 +207,60 @@ document.addEventListener('DOMContentLoaded', () => {
             eqLow.type = 'lowshelf';
             eqLow.frequency.value = 300;
 
-            // Bitcrusher (ScriptProcessor or AudioWorklet - using simplified approach for now)
-            // Actually, let's use a highpass/lowpass combo or distortion for "Crush" to keep it simple without worklets
-            // Or a WaveShaper
+            // DJ Filter (Lowpass/Highpass)
+            filterNode = audioContext.createBiquadFilter();
+            filterNode.type = 'allpass'; // Neutral start
+            filterNode.frequency.value = 20000;
+
+            // Bitcrusher
             bitcrusher = audioContext.createWaveShaper();
-            bitcrusher.curve = makeDistortionCurve(0); // Start with 0 distortion
+            bitcrusher.curve = makeDistortionCurve(0);
             bitcrusher.oversample = '4x';
 
             // Delay
             delayNode = audioContext.createDelay();
-            delayNode.delayTime.value = 0.5; // 500ms
+            delayNode.delayTime.value = 0.5;
             delayFeedback = audioContext.createGain();
             delayFeedback.gain.value = 0.4;
             delayGain = audioContext.createGain();
-            delayGain.gain.value = 0; // Start dry
+            delayGain.gain.value = 0;
+
+            // Reverb
+            reverbNode = audioContext.createConvolver();
+            reverbNode.buffer = createImpulseResponse(2, 2, false); // 2s decay
+            reverbGain = audioContext.createGain();
+            reverbGain.gain.value = 0;
 
             // Connections
-            // Decks -> EQ Low
             deckAGain = audioContext.createGain();
             deckBGain = audioContext.createGain();
 
+            // Mix Decks -> EQ
             deckAGain.connect(eqLow);
             deckBGain.connect(eqLow);
 
             eqLow.connect(eqMid);
             eqMid.connect(eqHigh);
-            eqHigh.connect(bitcrusher);
+            eqHigh.connect(filterNode);
+            filterNode.connect(bitcrusher);
 
-            // Split to Delay
-            bitcrusher.connect(masterGain);
+            // Sends
             bitcrusher.connect(delayNode);
-
             delayNode.connect(delayFeedback);
             delayFeedback.connect(delayNode);
             delayFeedback.connect(delayGain);
             delayGain.connect(masterGain);
 
+            bitcrusher.connect(reverbNode);
+            reverbNode.connect(reverbGain);
+            reverbGain.connect(masterGain);
+
+            bitcrusher.connect(masterGain); // Dry signal to master
+
             masterGain.connect(analyser);
             analyser.connect(audioContext.destination);
 
-            // Initial Mix
             updateCrossfader();
-
-            // Start Visualizer
             drawVisualizer();
         }
     }
@@ -253,31 +277,155 @@ document.addEventListener('DOMContentLoaded', () => {
         return curve;
     }
 
-    let lastOut = 0;
+    function createImpulseResponse(duration, decay, reverse) {
+        const sampleRate = audioContext.sampleRate;
+        const length = sampleRate * duration;
+        const impulse = audioContext.createBuffer(2, length, sampleRate);
+        const left = impulse.getChannelData(0);
+        const right = impulse.getChannelData(1);
 
-    function createScratchSound(velocity) {
+        for (let i = 0; i < length; i++) {
+            const n = reverse ? length - i : i;
+            left[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+            right[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+        }
+        return impulse;
+    }
+
+    // --- Sampler Logic ---
+
+    // Bank Switching
+    bankBtn.addEventListener('click', () => {
+        if (currentBank === 'A') currentBank = 'B';
+        else if (currentBank === 'B') currentBank = 'C';
+        else currentBank = 'A';
+
+        bankBtn.innerText = `BANK ${currentBank}`;
+        if (currentBank === 'C') bankBtn.innerText = 'USER (MIC)';
+    });
+
+    // Loop Toggle
+    loopBtn.addEventListener('click', () => {
+        isLooping = !isLooping;
+        loopBtn.classList.toggle('active', isLooping);
+    });
+
+    // Revised Recording: Hold Rec + Click Pad
+    // We need to track Rec button state separately from the mousedown event which starts recording immediately.
+    // Let's use a flag.
+    let recHeld = false;
+
+    recBtn.addEventListener('mousedown', () => { recHeld = true; recBtn.classList.add('active'); });
+    recBtn.addEventListener('mouseup', () => { recHeld = false; recBtn.classList.remove('active'); });
+
+    pads.forEach((pad, index) => {
+        pad.addEventListener('mousedown', async () => {
+            initAudio();
+
+            if (recHeld && currentBank === 'C') {
+                // Start Recording to this pad
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    recordedChunks = [];
+                    pad.classList.add('recording'); // Visual feedback on pad
+
+                    mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
+                    mediaRecorder.onstop = async () => {
+                        const blob = new Blob(recordedChunks, { type: 'audio/ogg; codecs=opus' });
+                        const arrayBuffer = await blob.arrayBuffer();
+                        userSamples[index] = await audioContext.decodeAudioData(arrayBuffer);
+                        pad.classList.remove('recording');
+                    };
+
+                    mediaRecorder.start();
+                } catch (err) { console.error(err); }
+            } else {
+                // Play
+                playSample(index);
+                pad.classList.add('active');
+            }
+        });
+
+        pad.addEventListener('mouseup', () => {
+            pad.classList.remove('active');
+            if (recHeld && mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+        });
+    });
+
+    function playSample(index) {
         if (!audioContext) return;
+        const now = audioContext.currentTime;
 
+        // Bank A: Standard Kit
+        if (currentBank === 'A') {
+            if (index === 0) playKick(now, masterGain);
+            if (index === 1) playSnare(now, masterGain);
+            if (index === 2) playHiHat(now, masterGain);
+            if (index === 3) playBass(now, 55, masterGain);
+        }
+        // Bank B: FX / Synth
+        else if (currentBank === 'B') {
+            if (index === 0) playAirhorn(now);
+            if (index === 1) playLaser(now);
+            if (index === 2) playChord(now, [440, 554, 659]); // A Major
+            if (index === 3) playChord(now, [392, 493, 587]); // G Major
+        }
+        // Bank C: User
+        else if (currentBank === 'C') {
+            if (userSamples[index]) {
+                const source = audioContext.createBufferSource();
+                source.buffer = userSamples[index];
+                source.connect(masterGain);
+                source.loop = isLooping;
+                source.start(now);
+            }
+        }
+    }
+
+    // Synth Functions
+    function playAirhorn(time) {
         const osc = audioContext.createOscillator();
-        osc.type = 'sawtooth';
-        // Pitch follows velocity
-        osc.frequency.setValueAtTime(100 + (velocity * 5), audioContext.currentTime);
-
         const gain = audioContext.createGain();
-        gain.gain.setValueAtTime(Math.min(velocity / 50, 0.5), audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(400, time);
+        osc.frequency.linearRampToValueAtTime(800, time + 0.3);
+        gain.gain.setValueAtTime(0.5, time);
+        gain.gain.linearRampToValueAtTime(0, time + 0.5);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(time);
+        osc.stop(time + 0.5);
+    }
 
-        const filter = audioContext.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(1000 + (velocity * 10), audioContext.currentTime);
-        filter.Q.value = 1;
+    function playLaser(time) {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.frequency.setValueAtTime(1000, time);
+        osc.frequency.exponentialRampToValueAtTime(100, time + 0.2);
+        gain.gain.setValueAtTime(0.5, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(time);
+        osc.stop(time + 0.2);
+    }
 
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(masterGain); // Connect to master (post-EQ? or pre-EQ? Let's go post for clarity)
-
-        osc.start();
-        osc.stop(audioContext.currentTime + 0.1);
+    function playChord(time, freqs) {
+        freqs.forEach(f => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, time);
+            gain.gain.setValueAtTime(0.1, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 1);
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start(time);
+            osc.stop(time + 1);
+        });
     }
 
     function playKick(time, gainNode) {
@@ -488,41 +636,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (delayGain) delayGain.gain.value = val;
     });
 
-    // Pads Logic
-    pads.forEach(pad => {
-        pad.addEventListener('mousedown', () => {
-            initAudio();
-            const type = pad.dataset.sample;
-            playSample(type);
-            pad.style.transform = 'scale(0.95)';
-            setTimeout(() => pad.style.transform = '', 100);
-        });
+    setupKnob(fxReverbKnob, (val) => {
+        if (reverbGain) reverbGain.gain.value = val * 2; // Boost reverb
     });
 
-    function playSample(type) {
-        if (!audioContext) return;
-        const now = audioContext.currentTime;
+    setupKnob(fxFilterKnob, (val) => {
+        if (filterNode) {
+            // 0-0.45: Lowpass (20Hz - 20kHz)
+            // 0.55-1.0: Highpass (20Hz - 20kHz)
+            // Center (0.45-0.55) is open (allpass)
 
-        if (type === 'kick') playKick(now, masterGain);
-        if (type === 'snare') playSnare(now, masterGain);
-        if (type === 'hat') playHiHat(now, masterGain);
-        if (type === 'airhorn') {
-            // Simple Airhorn Synth
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(400, now);
-            osc.frequency.linearRampToValueAtTime(800, now + 0.3);
-
-            gain.gain.setValueAtTime(0.5, now);
-            gain.gain.linearRampToValueAtTime(0, now + 0.5);
-
-            osc.connect(gain);
-            gain.connect(masterGain);
-            osc.start(now);
-            osc.stop(now + 0.5);
+            if (val < 0.45) {
+                filterNode.type = 'lowpass';
+                // Map 0-0.45 to 20-20000
+                const freq = 20 + (val / 0.45) * 20000;
+                filterNode.frequency.value = freq;
+                filterNode.Q.value = 1;
+            } else if (val > 0.55) {
+                filterNode.type = 'highpass';
+                // Map 0.55-1.0 to 20-20000
+                const freq = 20 + ((val - 0.55) / 0.45) * 20000;
+                filterNode.frequency.value = freq;
+                filterNode.Q.value = 1;
+            } else {
+                filterNode.type = 'allpass'; // Bypass effectively
+                filterNode.frequency.value = 20000; // Ensure it's open
+            }
         }
-    }
+    });
 
     // Visualizer
     function drawVisualizer() {
@@ -542,7 +683,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (let i = 0; i < bufferLength; i++) {
             barHeight = dataArray[i] / 2;
-            canvasCtx.fillStyle = '#00ff41'; // Matrix Green
+            // Color based on height
+            const r = barHeight + (25 * (i / bufferLength));
+            const g = 250 * (i / bufferLength);
+            const b = 50;
+
+            canvasCtx.fillStyle = `rgb(${r},${g},${b})`;
             canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
             x += barWidth + 1;
         }
@@ -590,4 +736,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    function createScratchSound(velocity) {
+        if (!audioContext) return;
+        const osc = audioContext.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(100 + (velocity * 5), audioContext.currentTime);
+        const gain = audioContext.createGain();
+        gain.gain.setValueAtTime(Math.min(velocity / 50, 0.5), audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        const filter = audioContext.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1000 + (velocity * 10), audioContext.currentTime);
+        filter.Q.value = 1;
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+        osc.start();
+        osc.stop(audioContext.currentTime + 0.1);
+    }
 });

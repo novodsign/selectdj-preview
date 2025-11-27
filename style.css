@@ -1145,26 +1145,55 @@ a {
 
 .te-wrapper {
     background: transparent;
-    padding: 0;
-    max-width: 1000px;
+    padding: 20px;
+    max-width: 1200px;
+    /* Increased Size */
     margin: 0 auto;
     box-shadow: none;
     border: none;
 }
 
 .te-casing {
-    background: #e3e3e3;
-    /* Matte Grey */
-    border-radius: 4px;
-    padding: 20px;
+    background: #d8d8d8;
+    /* Lighter Matte Grey */
+    border-radius: 8px;
+    padding: 40px;
+    /* Deeper Bezel */
     box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+        0 30px 60px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.2);
     font-family: 'Courier New', Courier, monospace;
-    /* Technical Font */
-    color: #333;
+    color: #222;
     position: relative;
+    /* Subtle Noise Texture */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* Screws */
+.te-casing::before,
+.te-casing::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle, #bbb 0%, #999 100%);
+    border-radius: 50%;
+    box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.8),
+        0 1px 1px rgba(0, 0, 0, 0.3);
+    border: 1px solid #888;
+    z-index: 10;
+}
+
+.te-casing::before {
+    top: 10px;
+    left: 10px;
+}
+
+.te-casing::after {
+    top: 10px;
+    right: 10px;
 }
 
 /* Top Bar */
@@ -1172,11 +1201,12 @@ a {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    background: #d1d1d1;
-    padding: 10px 20px;
-    border-radius: 2px;
-    border: 1px solid #bbb;
+    margin-bottom: 30px;
+    background: #e0e0e0;
+    padding: 15px 25px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .te-branding {
@@ -1186,37 +1216,55 @@ a {
 
 .brand-name {
     font-weight: 900;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     letter-spacing: -1px;
+    color: #111;
 }
 
 .model-name {
-    font-size: 0.7rem;
-    opacity: 0.6;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    font-weight: bold;
 }
 
 /* OLED Screen */
 .te-screen {
     background: #000;
-    width: 250px;
-    height: 60px;
-    border-radius: 2px;
-    padding: 5px 10px;
+    width: 300px;
+    height: 80px;
+    border-radius: 4px;
+    padding: 8px 12px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     position: relative;
     overflow: hidden;
-    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+    box-shadow:
+        inset 0 0 15px rgba(255, 255, 255, 0.1),
+        0 2px 5px rgba(0, 0, 0, 0.2);
+    border: 2px solid #222;
+}
+
+/* Glass Reflection */
+.te-screen::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 40%, transparent 100%);
+    pointer-events: none;
 }
 
 .screen-header,
 .screen-footer {
     display: flex;
     justify-content: space-between;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     color: #fff;
     font-family: 'Inter', sans-serif;
+    z-index: 2;
 }
 
 #visualizer {
@@ -1225,50 +1273,64 @@ a {
     position: absolute;
     top: 0;
     left: 0;
-    opacity: 0.5;
+    opacity: 0.8;
     pointer-events: none;
 }
 
 .te-speaker-grill {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
 }
 
 .te-speaker-grill span {
-    width: 4px;
-    height: 4px;
-    background: #333;
+    width: 5px;
+    height: 5px;
+    background: #222;
     border-radius: 50%;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.8);
 }
 
 /* Main Grid */
 .te-grid {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr 0.8fr;
-    gap: 15px;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 25px;
 }
 
 .te-module {
-    background: #f0f0f0;
+    background: #eaeaea;
     border: 1px solid #ccc;
-    border-radius: 2px;
-    padding: 15px;
+    border-radius: 4px;
+    padding: 25px;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+        0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Panel Lines/Screws for Modules */
+.te-module::before {
+    content: '+';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: #aaa;
+    font-size: 10px;
 }
 
 .te-label-group {
     position: absolute;
-    top: 5px;
-    left: 5px;
-    font-size: 0.5rem;
-    font-weight: bold;
-    opacity: 0.5;
+    top: 8px;
+    left: 10px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    opacity: 0.6;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /* Platter Module */
@@ -1279,30 +1341,37 @@ a {
     display: flex;
     justify-content: center;
     align-items: center;
+    background: #ddd;
+    border-radius: 50%;
+    box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 10px;
 }
 
 .platter {
-    width: 90%;
-    height: 90%;
-    background: #222;
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
 }
 
 .vinyl-record {
-    width: 95%;
-    height: 95%;
-    background: radial-gradient(#111 0%, #1a1a1a 100%);
+    width: 96%;
+    height: 96%;
+    background: repeating-radial-gradient(#111 0,
+            #111 2px,
+            #1a1a1a 3px,
+            #1a1a1a 4px);
     border-radius: 50%;
     position: relative;
-    box-shadow: inset 0 0 0 2px #333;
+    box-shadow: inset 0 0 0 2px #000;
 }
 
 .vinyl-record.spinning {
-    animation: spin 2s linear infinite;
+    animation: spin 1.8s linear infinite;
 }
 
 .vinyl-label {
@@ -1310,88 +1379,131 @@ a {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 35%;
-    height: 35%;
+    width: 38%;
+    height: 38%;
     background: #fff;
     border-radius: 50%;
     overflow: hidden;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
-/* Tone Arm (Simplified for TE style) */
+/* Tone Arm - Fixed Alignment */
 .tone-arm {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 40px;
-    height: 180px;
-    transform-origin: top center;
-    transform: rotate(-30deg);
-    transition: transform 0.5s ease;
+    top: -10%;
+    /* Moved up */
+    right: -10%;
+    /* Moved right */
+    width: 60px;
+    height: 280px;
+    /* Longer */
+    transform-origin: 30px 30px;
+    /* Pivot at base center */
+    transform: rotate(-35deg);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
-    z-index: 10;
+    z-index: 20;
 }
 
 .tone-arm.active {
-    transform: rotate(20deg);
+    transform: rotate(18deg);
+    /* Touches record */
 }
 
 .arm-base {
-    width: 40px;
-    height: 40px;
-    background: #bbb;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #ccc, #999);
     border-radius: 50%;
-    border: 1px solid #999;
+    border: 1px solid #888;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.arm-base::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background: #666;
+    border-radius: 50%;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 .arm-stick {
-    width: 6px;
-    height: 140px;
-    background: #ddd;
-    margin: -20px auto 0;
+    width: 12px;
+    height: 200px;
+    background: linear-gradient(90deg, #ddd, #fff, #ddd);
+    margin: -30px auto 0;
+    border-radius: 6px;
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.2);
 }
 
 .arm-head {
-    width: 20px;
-    height: 40px;
-    background: #333;
+    width: 35px;
+    height: 60px;
+    background: #222;
     margin: 0 auto;
+    border-radius: 4px;
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+/* Needle */
+.arm-head::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 8px;
+    background: #fff;
 }
 
 .transport-controls {
     display: flex;
-    gap: 10px;
+    gap: 15px;
 }
 
 .te-btn {
     flex: 1;
-    background: #fff;
+    background: #f5f5f5;
     border: 1px solid #ccc;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 0.8rem;
-    box-shadow: 0 2px 0 #bbb;
+    font-weight: 900;
+    font-size: 0.9rem;
+    box-shadow:
+        0 4px 0 #bbb,
+        0 5px 10px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.1s;
+    position: relative;
 }
 
 .te-btn:active,
 .te-btn.active {
-    transform: translateY(2px);
-    box-shadow: none;
+    transform: translateY(4px);
+    box-shadow:
+        0 0 0 #bbb,
+        inset 0 2px 5px rgba(0, 0, 0, 0.1);
     background: #eee;
 }
 
 .play-btn {
-    color: #00ff41;
+    color: #00c853;
 }
 
 .cue-btn {
-    color: #ff3b30;
+    color: #d50000;
 }
 
 /* Mixer Module */
@@ -1404,7 +1516,7 @@ a {
 .eq-column {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
     align-items: center;
 }
 
@@ -1412,54 +1524,79 @@ a {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
 }
 
 .te-knob-wrapper label {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     font-weight: bold;
+    color: #555;
 }
 
+/* Realistic Knobs */
 .te-knob {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     position: relative;
     cursor: ns-resize;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow:
+        0 5px 10px rgba(0, 0, 0, 0.2),
+        0 10px 20px rgba(0, 0, 0, 0.1);
+    /* Knurled Texture */
+    background:
+        repeating-conic-gradient(from 0deg,
+            rgba(255, 255, 255, 0.1) 0deg,
+            rgba(255, 255, 255, 0.1) 2deg,
+            transparent 2deg,
+            transparent 4deg),
+        linear-gradient(135deg, #ddd, #999);
+}
+
+.te-knob::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    background: linear-gradient(135deg, #f0f0f0, #ccc);
+    border-radius: 50%;
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
 .te-knob::after {
     content: '';
     position: absolute;
-    top: 5px;
+    top: 10%;
     left: 50%;
     width: 4px;
     height: 15px;
-    background: #fff;
+    background: #333;
     transform: translateX(-50%);
     border-radius: 2px;
 }
 
-/* Knob Colors */
-.te-knob.red {
-    background: #ff3b30;
+/* Colored Caps */
+.te-knob.red::before {
+    background: radial-gradient(circle, #ff5252, #d32f2f);
 }
 
-.te-knob.green {
-    background: #4cd964;
+.te-knob.green::before {
+    background: radial-gradient(circle, #69f0ae, #388e3c);
 }
 
-.te-knob.blue {
-    background: #007aff;
+.te-knob.blue::before {
+    background: radial-gradient(circle, #448aff, #1976d2);
 }
 
-.te-knob.orange {
-    background: #ff9500;
+.te-knob.orange::before {
+    background: radial-gradient(circle, #ffab40, #ff6d00);
 }
 
-.te-knob.white {
-    background: #f2f2f7;
+.te-knob.white::before {
+    background: radial-gradient(circle, #fff, #e0e0e0);
 }
 
 .te-knob.white::after {
@@ -1468,7 +1605,7 @@ a {
 
 .fader-column {
     display: flex;
-    gap: 10px;
+    gap: 15px;
 }
 
 .te-fader-wrapper {
@@ -1484,17 +1621,21 @@ a {
     /* IE */
     -webkit-appearance: slider-vertical;
     appearance: slider-vertical;
-    width: 8px;
-    height: 120px;
+    width: 30px;
+    /* Wider touch area */
+    height: 150px;
     background: #ccc;
     outline: none;
+    border-radius: 15px;
+    /* Track styling */
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .crossfader-area {
     position: absolute;
-    bottom: 15px;
-    left: 15px;
-    right: 15px;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
 }
 
 .te-crossfader {
@@ -1502,42 +1643,52 @@ a {
     -webkit-appearance: none;
     appearance: none;
     background: transparent;
+    height: 40px;
+    /* Touch area */
 }
 
 .te-crossfader::-webkit-slider-runnable-track {
     width: 100%;
-    height: 4px;
-    background: #ccc;
-    border-radius: 2px;
+    height: 8px;
+    background: #222;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .te-crossfader::-webkit-slider-thumb {
     -webkit-appearance: none;
-    height: 20px;
-    width: 40px;
-    background: #333;
-    margin-top: -8px;
-    border-radius: 2px;
+    height: 30px;
+    width: 60px;
+    background: linear-gradient(to bottom, #555, #333);
+    margin-top: -11px;
+    border-radius: 4px;
     cursor: pointer;
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border: 1px solid #111;
 }
 
 .xf-labels {
     display: flex;
     justify-content: space-between;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     margin-top: 5px;
+    font-weight: bold;
+    color: #555;
 }
 
 /* FX Module */
 .fx-controls {
     display: flex;
     justify-content: space-around;
+    margin-bottom: 20px;
 }
 
 .sampler-pads {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 15px;
     margin-top: auto;
 }
 
@@ -1545,30 +1696,100 @@ a {
     aspect-ratio: 1/1;
     background: #333;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     color: #fff;
     font-family: inherit;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     cursor: pointer;
     transition: all 0.05s;
-    box-shadow: 0 2px 0 #000;
+    box-shadow:
+        0 4px 0 #111,
+        0 5px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
 }
 
-.te-pad:active {
+.te-pad::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.te-pad:active,
+.te-pad.active {
+    transform: translateY(4px);
+    box-shadow:
+        0 0 0 #111,
+        inset 0 2px 5px rgba(0, 0, 0, 0.5);
+    background: #444;
+}
+
+.te-pad:active::after {
+    opacity: 1;
+}
+
+.te-btn-small {
+    background: #ddd;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #999;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex: 1;
+}
+
+.te-btn-small:active,
+.te-btn-small.active {
     transform: translateY(2px);
     box-shadow: none;
-    background: #555;
+    background: #ccc;
+}
+
+.te-btn-small.recording {
+    background: #ff5252;
+    color: white;
+    border-color: #d32f2f;
+    box-shadow: 0 2px 0 #b71c1c;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 /* Mobile Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .te-grid {
         grid-template-columns: 1fr;
+        gap: 40px;
     }
 
     .te-top-bar {
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
     }
 
     .te-screen {
@@ -1579,12 +1800,16 @@ a {
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 30px;
+        gap: 40px;
     }
 
     .crossfader-area {
         position: relative;
         width: 100%;
-        margin-top: 20px;
+        margin-top: 30px;
+    }
+
+    .tone-arm {
+        right: -20px;
     }
 }
