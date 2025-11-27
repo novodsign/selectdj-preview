@@ -1722,62 +1722,141 @@ a {
 }
 
 .te-pad:active,
-.te-pad.active {
-    transform: translateY(4px);
-    box-shadow:
-        0 0 0 #111,
-        inset 0 2px 5px rgba(0, 0, 0, 0.5);
-    background: #444;
+.te-pad.active
+
+/* --- FX & Sampler Controls --- */
+.fx-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
-.te-pad:active::after {
-    opacity: 1;
+.sampler-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 
 .te-btn-small {
-    background: #ddd;
-    border: 1px solid #bbb;
+    width: 40px;
+    height: 40px;
     border-radius: 4px;
-    padding: 5px 10px;
-    font-size: 0.7rem;
+    background: #e0e0e0;
+    border: none;
+    box-shadow:
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+        inset -1px -1px 2px rgba(0, 0, 0, 0.1),
+        2px 2px 5px rgba(0, 0, 0, 0.2);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
     font-weight: bold;
+    color: #444;
     cursor: pointer;
-    box-shadow: 0 2px 0 #999;
-    color: #333;
+    transition: all 0.1s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    flex: 1;
 }
 
 .te-btn-small:active,
 .te-btn-small.active {
-    transform: translateY(2px);
-    box-shadow: none;
-    background: #ccc;
+    background: #d0d0d0;
+    box-shadow:
+        inset 2px 2px 5px rgba(0, 0, 0, 0.2),
+        inset -1px -1px 2px rgba(255, 255, 255, 0.5);
+    transform: translateY(1px);
 }
 
 .te-btn-small.recording {
-    background: #ff5252;
+    background: #ff4444;
     color: white;
-    border-color: #d32f2f;
-    box-shadow: 0 2px 0 #b71c1c;
-    animation: pulse 1s infinite;
+    box-shadow: 0 0 10px #ff4444;
 }
 
-@keyframes pulse {
+.te-btn-small.recording-active {
+    background: #ff0000;
+    animation: pulse-rec 1s infinite;
+}
+
+.te-btn-mini {
+    width: 30px;
+    height: 20px;
+    border-radius: 2px;
+    background: #ccc;
+    border: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #333;
+    cursor: pointer;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.te-btn-mini:active {
+    background: #bbb;
+    transform: translateY(1px);
+}
+
+/* VU Meter */
+.vu-meter {
+    width: 10px;
+    height: 60px;
+    background: #222;
+    border-radius: 2px;
+    padding: 2px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+}
+
+.vu-segment {
+    width: 100%;
+    height: 20%;
+    background: #444;
+    border-radius: 1px;
+    transition: background 0.05s;
+}
+
+.vu-segment.active.green {
+    background: #00ff00;
+    box-shadow: 0 0 5px #00ff00;
+}
+
+.vu-segment.active.orange {
+    background: #ffaa00;
+    box-shadow: 0 0 5px #ffaa00;
+}
+
+.vu-segment.active.red {
+    background: #ff0000;
+    box-shadow: 0 0 5px #ff0000;
+}
+
+.hot-cue.active {
+    background: #00aaff;
+    color: white;
+    box-shadow: 0 0 8px #00aaff;
+}
+
+@keyframes pulse-rec {
     0% {
         opacity: 1;
     }
 
     50% {
-        opacity: 0.7;
+        opacity: 0.5;
     }
 
     100% {
         opacity: 1;
     }
+}
+
+.te-pads-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
 
 /* Mobile Responsive */

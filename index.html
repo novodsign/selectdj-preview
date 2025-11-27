@@ -285,6 +285,23 @@
                             <!-- Middle: Mixer (EQ & Faders) -->
                             <div class="te-module mixer-module">
                                 <div class="te-label-group">EQ / MIX</div>
+
+                                <!-- Gain & VU -->
+                                <div class="gain-vu-row"
+                                    style="display: flex; gap: 15px; justify-content: center; margin-bottom: 15px;">
+                                    <div class="te-knob-wrapper">
+                                        <div class="te-knob grey" id="gainKnob"></div>
+                                        <label>TRIM</label>
+                                    </div>
+                                    <div class="vu-meter">
+                                        <div class="vu-segment red"></div>
+                                        <div class="vu-segment orange"></div>
+                                        <div class="vu-segment green"></div>
+                                        <div class="vu-segment green"></div>
+                                        <div class="vu-segment green"></div>
+                                    </div>
+                                </div>
+
                                 <div class="eq-column">
                                     <div class="te-knob-wrapper">
                                         <div class="te-knob red" id="eqHigh"></div>
@@ -309,6 +326,12 @@
                                         <input type="range" id="speedSlider" class="te-fader vertical" min="0.5"
                                             max="1.5" step="0.01" value="1">
                                         <label>PITCH</label>
+                                    </div>
+                                    <!-- Nudge Buttons -->
+                                    <div class="nudge-controls"
+                                        style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
+                                        <button class="te-btn-mini" id="nudgePlus">+</button>
+                                        <button class="te-btn-mini" id="nudgeMinus">-</button>
                                     </div>
                                 </div>
                                 <div class="crossfader-area">
@@ -339,6 +362,26 @@
                                     <div class="te-knob-wrapper">
                                         <div class="te-knob orange" id="fxFilter"></div>
                                         <label>FILTER</label>
+                                    </div>
+                                </div>
+
+                                <!-- Performance Controls (Hot Cues & Loops) -->
+                                <div class="perf-controls"
+                                    style="margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px;">
+                                    <div class="hot-cues"
+                                        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;">
+                                        <button class="te-btn-small hot-cue" data-cue="1">1</button>
+                                        <button class="te-btn-small hot-cue" data-cue="2">2</button>
+                                        <button class="te-btn-small hot-cue" data-cue="3">3</button>
+                                        <button class="te-btn-small hot-cue" data-cue="4">4</button>
+                                    </div>
+                                    <div class="loop-controls"
+                                        style="display: flex; gap: 5px; justify-content: center;">
+                                        <button class="te-btn-small" id="loopInBtn">IN</button>
+                                        <button class="te-btn-small" id="loopOutBtn">OUT</button>
+                                        <button class="te-btn-small" id="loopExitBtn">EXIT</button>
+                                        <button class="te-btn-small" id="syncBtn"
+                                            style="background: #333; color: #fff;">SYNC</button>
                                     </div>
                                 </div>
 

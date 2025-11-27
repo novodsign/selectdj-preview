@@ -126,12 +126,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const eqHighKnob = document.getElementById('eqHigh');
     const eqMidKnob = document.getElementById('eqMid');
     const eqLowKnob = document.getElementById('eqLow');
+    const gainKnob = document.getElementById('gainKnob'); // New Gain
 
     // FX Knobs
     const fxCrushKnob = document.getElementById('fxCrush');
     const fxDelayKnob = document.getElementById('fxDelay');
     const fxReverbKnob = document.getElementById('fxReverb');
     const fxFilterKnob = document.getElementById('fxFilter');
+
+    // Pro DJ Controls
+    const nudgePlus = document.getElementById('nudgePlus');
+    const nudgeMinus = document.getElementById('nudgeMinus');
+    const hotCueBtns = document.querySelectorAll('.hot-cue');
+    const loopInBtn = document.getElementById('loopInBtn');
+    const loopOutBtn = document.getElementById('loopOutBtn');
+    const loopExitBtn = document.getElementById('loopExitBtn');
+    const syncBtn = document.getElementById('syncBtn');
+    const vuSegments = document.querySelectorAll('.vu-segment');
 
     // Sampler Controls
     const recBtn = document.getElementById('recBtn');
@@ -148,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
     let audioContext;
     let masterGain;
+    let inputGain; // New Input Gain
     let deckAGain;
     let deckBGain;
     let analyser;
@@ -177,6 +189,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const scheduleAheadTime = 0.1;
     const lookahead = 25.0;
 
+    // Pro DJ State
+    let nudgeFactor = 0;
+    let hotCues = [null, null, null, null];
+    let loopStart = null;
+    let loopEnd = null;
+    let isManualLooping = false;
+    let loopLength = 0;
+
     // Scratch Variables
     let isDragging = false;
     let lastAngle = 0;
@@ -190,6 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Master Chain
             masterGain = audioContext.createGain();
+            inputGain = audioContext.createGain(); // Input Gain Stage
+            inputGain.gain.value = 1.0;
+
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 256;
 
@@ -237,8 +260,10 @@ document.addEventListener('DOMContentLoaded', () => {
             deckAGain = audioContext.createGain();
             deckBGain = audioContext.createGain();
 
-            deckAGain.connect(eqLow);
-            deckBGain.connect(eqLow);
+            deckAGain.connect(inputGain);
+            deckBGain.connect(inputGain);
+
+            inputGain.connect(eqLow); // Input Gain feeds EQ
 
             eqLow.connect(eqMid);
             eqMid.connect(eqHigh);
@@ -262,6 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             updateCrossfader();
             drawVisualizer();
+            updateVUMeter();
         }
     }
 
@@ -554,11 +580,19 @@ document.addEventListener('DOMContentLoaded', () => {
         while (nextNoteTime < audioContext.currentTime + scheduleAheadTime) {
             scheduleNote(current16thNote, nextNoteTime);
 
-            const secondsPerBeat = 60.0 / (tempo * speedSlider.value);
+            // Calculate speed with nudge
+            const currentSpeed = parseFloat(speedSlider.value) + nudgeFactor;
+            const secondsPerBeat = 60.0 / (tempo * currentSpeed);
             const secondsPer16th = secondsPerBeat / 4;
 
             nextNoteTime += secondsPer16th;
-            current16thNote = (current16thNote + 1) % 16;
+
+            // Manual Loop Logic
+            if (isManualLooping && current16thNote === loopEnd) {
+                current16thNote = loopStart;
+            } else {
+                current16thNote = (current16thNote + 1) % 16;
+            }
         }
         timerID = requestAnimationFrame(scheduler);
     }
@@ -571,7 +605,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audioContext.state === 'suspended') audioContext.resume();
 
         isPlaying = true;
-        current16thNote = 0;
+        // If not resuming from a cue point, reset or continue? 
+        // Standard DJ: Play continues from where it left off unless Cue is used.
+        // For this simulator, we'll just continue if paused.
         nextNoteTime = audioContext.currentTime + 0.1;
 
         playBtn.classList.add('active');
@@ -605,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isPlaying) {
             // If playing, stop and return to start
             stopPlayback();
-            current16thNote = 0; // Reset
+            current16thNote = 0; // Return to start (Cue Point)
         } else {
             // If paused, play while held
             startPlayback();
@@ -624,15 +660,91 @@ document.addEventListener('DOMContentLoaded', () => {
         // let's just say: If Cue released, Stop.
         // But wait, if we pressed Cue while playing (to stop), we don't want to stop AGAIN (already stopped).
 
-        if (isPlaying && !playBtn.classList.contains('latched')) {
+        if (isPlaying && !playBtn.classList.contains('active')) { // If not latched
             stopPlayback();
-            current16thNote = 0; // Return to start
+            current16thNote = 0;
         }
     });
 
     // To support "Latch", we'd need Play button to set a flag if pressed while Cue is held.
     // Let's keep it simple: Cue is momentary play. Play is toggle.
     // If you press Play, it stays. If you press Cue, it plays until release.
+
+    // Nudge
+    nudgePlus.addEventListener('mousedown', () => nudgeFactor = 0.1);
+    nudgePlus.addEventListener('mouseup', () => nudgeFactor = 0);
+    nudgePlus.addEventListener('mouseleave', () => nudgeFactor = 0);
+
+    nudgeMinus.addEventListener('mousedown', () => nudgeFactor = -0.1);
+    nudgeMinus.addEventListener('mouseup', () => nudgeFactor = 0);
+    nudgeMinus.addEventListener('mouseleave', () => nudgeFactor = 0);
+
+    // Hot Cues
+    hotCueBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const cueIdx = parseInt(btn.dataset.cue) - 1;
+            if (hotCues[cueIdx] === null) {
+                // Set Cue
+                hotCues[cueIdx] = current16thNote;
+                btn.classList.add('active');
+            } else {
+                // Jump to Cue
+                current16thNote = hotCues[cueIdx];
+                if (!isPlaying) startPlayback();
+            }
+        });
+    });
+
+    // Manual Loop
+    loopInBtn.addEventListener('click', () => {
+        loopStart = current16thNote;
+        loopInBtn.classList.add('active');
+    });
+
+    loopOutBtn.addEventListener('click', () => {
+        if (loopStart !== null) {
+            loopEnd = current16thNote;
+            isManualLooping = true;
+            loopOutBtn.classList.add('active');
+            loopExitBtn.classList.remove('active');
+        }
+    });
+
+    loopExitBtn.addEventListener('click', () => {
+        isManualLooping = false;
+        loopStart = null;
+        loopEnd = null;
+        loopInBtn.classList.remove('active');
+        loopOutBtn.classList.remove('active');
+        loopExitBtn.classList.add('active');
+        setTimeout(() => loopExitBtn.classList.remove('active'), 200);
+    });
+
+    // Sync
+    syncBtn.addEventListener('click', () => {
+        speedSlider.value = 1.0; // Reset Pitch
+        bpmDisplay.innerText = "120 BPM";
+        current16thNote = 0; // Reset Phase
+        syncBtn.classList.add('active');
+        setTimeout(() => syncBtn.classList.remove('active'), 200);
+    });
+
+    // VU Meter Logic
+    function updateVUMeter() {
+        requestAnimationFrame(updateVUMeter);
+        if (!analyser) return;
+        const array = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(array);
+        const average = array.reduce((a, b) => a + b) / array.length;
+        const level = average / 255; // 0 to 1
+
+        vuSegments.forEach((seg, i) => {
+            // Thresholds: 0.2, 0.4, 0.6, 0.8, 0.95
+            const threshold = (i + 1) * 0.2;
+            if (level > threshold) seg.classList.add('active');
+            else seg.classList.remove('active');
+        });
+    }
 
     volumeSlider.addEventListener('input', (e) => {
         if (masterGain) masterGain.gain.value = e.target.value;
@@ -691,6 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupKnob(eqHighKnob, (val) => { if (eqHigh) eqHigh.gain.value = (val - 0.5) * 40; });
     setupKnob(eqMidKnob, (val) => { if (eqMid) eqMid.gain.value = (val - 0.5) * 40; });
     setupKnob(eqLowKnob, (val) => { if (eqLow) eqLow.gain.value = (val - 0.5) * 40; });
+    setupKnob(gainKnob, (val) => { if (inputGain) inputGain.gain.value = val * 2; }); // Gain 0-2x
 
     setupKnob(fxCrushKnob, (val) => {
         if (bitcrusher) bitcrusher.curve = makeDistortionCurve(val * 400);
