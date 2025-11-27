@@ -13,6 +13,7 @@
 </head>
 
 <body>
+    <div class="grain-overlay"></div>
 
     <!-- Background Elements -->
     <div class="blob blob-1"></div>
@@ -56,7 +57,7 @@
         <!-- About Section -->
         <section id="about" class="section about">
             <div class="container">
-                <h2 class="section-title">О НАС</h2>
+                <h2 class="section-title text-gradient reveal">О НАС</h2>
                 <div class="about-content">
                     <div class="about-text-block glass-card">
                         <p class="lead">«SELECT ACADEMY» — это академия диджеинга, созданная при поддержке <a
@@ -82,29 +83,31 @@
         </section>
 
         <!-- Clubs Ticker -->
-        <div class="clubs-ticker">
-            <div class="ticker-content">
-                <span class="ticker-item">VNVNC CONCERT HALL</span>
-                <span class="ticker-item">DK</span>
-                <span class="ticker-item">812 BAR</span>
-                <span class="ticker-item">UNION</span>
-                <span class="ticker-item">BLANK</span>
-                <span class="ticker-item">VNVNC CONCERT HALL</span>
-                <span class="ticker-item">DK</span>
-                <span class="ticker-item">812 BAR</span>
-                <span class="ticker-item">UNION</span>
-                <span class="ticker-item">BLANK</span>
+        <div class="clubs-ticker-wrapper">
+            <div class="clubs-ticker">
+                <div class="ticker-content">
+                    <span class="ticker-item">BLANK</span>
+                    <span class="ticker-item">UNION</span>
+                    <span class="ticker-item">TANCPLOSHADKA</span>
+                    <span class="ticker-item">STACKENSCHNEIDER</span>
+                    <span class="ticker-item">K-30</span>
+                    <span class="ticker-item">BLANK</span>
+                    <span class="ticker-item">UNION</span>
+                    <span class="ticker-item">TANCPLOSHADKA</span>
+                    <span class="ticker-item">STACKENSCHNEIDER</span>
+                    <span class="ticker-item">K-30</span>
+                </div>
             </div>
         </div>
 
         <!-- Courses Section (Redesigned with Image Cards) -->
         <section id="courses" class="section courses">
             <div class="container">
-                <h2 class="section-title">КУРСЫ</h2>
+                <h2 class="section-title text-gradient reveal">КУРСЫ</h2>
 
                 <div class="courses-grid">
                     <!-- Basic Course -->
-                    <div class="course-card">
+                    <div class="course-card reveal">
                         <div class="course-image-wrapper">
                             <img src="assets/images/basic.jpeg" alt="Basic Course">
                         </div>
@@ -114,12 +117,12 @@
                                 <span class="price">40 000 ₽</span>
                             </div>
                             <p class="course-desc">С нуля до уровня «про» за 3 месяца.</p>
-                            <a href="https://t.me/darina_rebel" class="btn btn-secondary">ПОДРОБНЕЕ</a>
+                            <button class="btn btn-secondary modal-trigger" data-modal="modal-basic">ПОДРОБНЕЕ</button>
                         </div>
                     </div>
 
                     <!-- Expert Course -->
-                    <div class="course-card">
+                    <div class="course-card reveal">
                         <div class="course-image-wrapper">
                             <img src="assets/images/expert.jpeg" alt="Expert Course">
                         </div>
@@ -129,12 +132,12 @@
                                 <span class="price">15 000 ₽</span>
                             </div>
                             <p class="course-desc">Повышение квалификации и новые фишки.</p>
-                            <a href="https://t.me/darina_rebel" class="btn btn-secondary">ПОДРОБНЕЕ</a>
+                            <button class="btn btn-secondary modal-trigger" data-modal="modal-expert">ПОДРОБНЕЕ</button>
                         </div>
                     </div>
 
                     <!-- Single Lesson -->
-                    <div class="course-card">
+                    <div class="course-card reveal">
                         <div class="course-image-wrapper">
                             <img src="assets/images/singlelesson.jpeg" alt="Single Lesson">
                         </div>
@@ -144,7 +147,7 @@
                                 <span class="price">3 000 ₽</span>
                             </div>
                             <p class="course-desc">Закрыть вопросы и получить знания.</p>
-                            <a href="https://t.me/darina_rebel" class="btn btn-secondary">ПОДРОБНЕЕ</a>
+                            <button class="btn btn-secondary modal-trigger" data-modal="modal-single">ПОДРОБНЕЕ</button>
                         </div>
                     </div>
                 </div>
@@ -154,7 +157,7 @@
         <!-- Rent Section -->
         <section id="rent" class="section rent">
             <div class="container">
-                <h2 class="section-title">АРЕНДА</h2>
+                <h2 class="section-title text-gradient reveal">АРЕНДА</h2>
                 <div class="rent-content glass-card">
                     <div class="rent-text">
                         <h3>САМОСТОЯТЕЛЬНАЯ ТРЕНИРОВКА</h3>
@@ -172,7 +175,7 @@
         <!-- Gallery Section (Vibe ONLY) -->
         <section id="gallery" class="section gallery">
             <div class="container">
-                <h2 class="section-title">VIBE</h2>
+                <h2 class="section-title text-gradient reveal">VIBE</h2>
                 <div class="gallery-grid">
                     <!-- Only party/vibe photos -->
                     <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.27 (1).jpeg" alt="Vibe">
@@ -189,7 +192,7 @@
         <!-- Team Section -->
         <section id="team" class="section team">
             <div class="container">
-                <h2 class="section-title">НАШИ ПРЕПОДАВАТЕЛИ</h2>
+                <h2 class="section-title text-gradient reveal">НАШИ ПРЕПОДАВАТЕЛИ</h2>
                 <div class="team-intro glass-card">
                     <p>Наши преподаватели — профессионалы, резиденты <strong>VNVNC, DK, 812 bar</strong>.</p>
                     <p>Делили сцену с <strong>ЛСП, Pharaoh, BUSHIDO ZHO, OG BUDA, Lovv66, Yanix</strong>.</p>
@@ -197,12 +200,15 @@
 
                 <div class="team-grid">
                     <!-- Team Photos -->
-                    <div class="team-card"><img src="assets/images/photo_2025-11-27 21.16.23.jpeg" alt="DJ"></div>
-                    <div class="team-card"><img src="assets/images/photo_2025-11-27 21.16.25.jpeg" alt="DJ"></div>
+                    <div class="team-card reveal"><img src="assets/images/photo_2025-11-27 21.16.23.jpeg" alt="DJ">
+                    </div>
+                    <div class="team-card reveal"><img src="assets/images/photo_2025-11-27 21.16.25.jpeg" alt="DJ">
+                    </div>
                     <!-- Replaced/Removed broken links -->
-                    <div class="team-card"><img src="assets/images/dj.jpeg" alt="DJ"></div>
-                    <div class="team-card"><img src="assets/images/dj2.jpeg" alt="DJ"></div>
-                    <div class="team-card"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="DJ"></div>
+                    <div class="team-card reveal"><img src="assets/images/dj.jpeg" alt="DJ"></div>
+                    <div class="team-card reveal"><img src="assets/images/dj2.jpeg" alt="DJ"></div>
+                    <div class="team-card reveal"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="DJ">
+                    </div>
                 </div>
             </div>
         </section>
@@ -220,10 +226,92 @@
             </div>
         </section>
 
+        <!-- Playground Section (DJ Deck) -->
+        <section id="playground" class="section playground">
+            <div class="container">
+                <!-- Removed Title as requested -->
+                <div class="deck-wrapper glass-card reveal">
+                    <div class="dj-deck">
+                        <div class="deck-body">
+                            <div class="platter-container">
+                                <div class="platter">
+                                    <div class="vinyl-record" id="vinylRecord">
+                                        <div class="vinyl-label"
+                                            style="background-image: url('assets/images/selectlogo-nosubtitle.PNG'); background-size: cover; background-position: center;">
+                                        </div>
+                                        <div class="vinyl-grooves"></div>
+                                    </div>
+                                </div>
+                                <div class="tone-arm" id="toneArm">
+                                    <div class="arm-base"></div>
+                                    <div class="arm-stick"></div>
+                                    <div class="arm-head"></div>
+                                </div>
+                            </div>
+                            <div class="deck-controls">
+                                <div class="control-group">
+                                    <button id="playBtn" class="deck-btn play-btn">
+                                        <i class="ph-fill ph-play"></i>
+                                    </button>
+                                    <button id="cueBtn" class="deck-btn cue-btn">
+                                        CUE
+                                    </button>
+                                </div>
+
+                                <div class="slider-group">
+                                    <label>VOLUME</label>
+                                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8">
+                                </div>
+
+                                <div class="slider-group">
+                                    <label>PITCH</label>
+                                    <div class="pitch-fader-wrapper">
+                                        <input type="range" id="speedSlider" class="pitch-fader" min="0.5" max="1.5"
+                                            step="0.01" value="1">
+                                    </div>
+                                </div>
+
+                                <div class="eq-group">
+                                    <div class="knob-wrapper">
+                                        <div class="knob" id="eqHigh">
+                                            <div class="knob-indicator"></div>
+                                        </div>
+                                        <label>HIGH</label>
+                                    </div>
+                                    <div class="knob-wrapper">
+                                        <div class="knob" id="eqMid">
+                                            <div class="knob-indicator"></div>
+                                        </div>
+                                        <label>MID</label>
+                                    </div>
+                                    <div class="knob-wrapper">
+                                        <div class="knob" id="eqLow">
+                                            <div class="knob-indicator"></div>
+                                        </div>
+                                        <label>LOW</label>
+                                    </div>
+                                </div>
+
+                                <div class="crossfader-group">
+                                    <input type="range" id="crossfader" min="0" max="1" step="0.01" value="0.5">
+                                    <div class="crossfader-labels">
+                                        <span>A</span>
+                                        <span>B</span>
+                                    </div>
+                                </div>
+
+                                <div class="status-light" id="statusLight"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Contact Section -->
         <section id="contact" class="section contact">
             <div class="container">
-                <h2 class="section-title">КОНТАКТЫ</h2>
+                <h2 class="section-title text-gradient reveal">КОНТАКТЫ</h2>
 
                 <div class="contact-container">
                     <!-- Contact Form -->
@@ -279,6 +367,74 @@
             </div>
         </section>
     </main>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <!-- Basic Course Modal -->
+    <div class="modal glass-card" id="modal-basic">
+        <button class="modal-close"><i class="ph-bold ph-x"></i></button>
+        <div class="modal-content">
+            <h2 class="text-gradient">КУРС BASIC</h2>
+            <div class="modal-body">
+                <img src="assets/images/basic.jpeg" alt="Basic Course" class="modal-image">
+                <div class="modal-info">
+                    <p class="lead">С нуля до уровня «про» за 3 месяца.</p>
+                    <ul class="styled-list">
+                        <li><i class="ph-bold ph-check"></i> 24 индивидуальных занятия</li>
+                        <li><i class="ph-bold ph-check"></i> Практика на клубном оборудовании</li>
+                        <li><i class="ph-bold ph-check"></i> Запись промо-микса</li>
+                        <li><i class="ph-bold ph-check"></i> Выпускной в клубе</li>
+                    </ul>
+                    <div class="modal-price">40 000 ₽</div>
+                    <a href="https://t.me/darina_rebel" target="_blank" class="btn btn-primary">ЗАПИСАТЬСЯ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expert Course Modal -->
+    <div class="modal glass-card" id="modal-expert">
+        <button class="modal-close"><i class="ph-bold ph-x"></i></button>
+        <div class="modal-content">
+            <h2 class="text-gradient">КУРС EXPERT</h2>
+            <div class="modal-body">
+                <img src="assets/images/expert.jpeg" alt="Expert Course" class="modal-image">
+                <div class="modal-info">
+                    <p class="lead">Повышение квалификации для действующих DJ.</p>
+                    <ul class="styled-list">
+                        <li><i class="ph-bold ph-check"></i> 12 занятий</li>
+                        <li><i class="ph-bold ph-check"></i> Продвинутые техники сведения</li>
+                        <li><i class="ph-bold ph-check"></i> Работа с эффектами</li>
+                        <li><i class="ph-bold ph-check"></i> Продвижение личного бренда</li>
+                    </ul>
+                    <div class="modal-price">15 000 ₽</div>
+                    <a href="https://t.me/darina_rebel" target="_blank" class="btn btn-primary">ЗАПИСАТЬСЯ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single Lesson Modal -->
+    <div class="modal glass-card" id="modal-single">
+        <button class="modal-close"><i class="ph-bold ph-x"></i></button>
+        <div class="modal-content">
+            <h2 class="text-gradient">РАЗОВОЕ ЗАНЯТИЕ</h2>
+            <div class="modal-body">
+                <img src="assets/images/singlelesson.jpeg" alt="Single Lesson" class="modal-image">
+                <div class="modal-info">
+                    <p class="lead">Попробуй себя в роли диджея.</p>
+                    <ul class="styled-list">
+                        <li><i class="ph-bold ph-check"></i> 1 индивидуальное занятие (2 часа)</li>
+                        <li><i class="ph-bold ph-check"></i> Знакомство с оборудованием</li>
+                        <li><i class="ph-bold ph-check"></i> Сведение первых треков</li>
+                    </ul>
+                    <div class="modal-price">3 000 ₽</div>
+                    <a href="https://t.me/darina_rebel" target="_blank" class="btn btn-primary">ЗАПИСАТЬСЯ</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
