@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     revealElements.forEach(el => revealObserver.observe(el));
 
     // --- 3D Tilt Effect ---
-    const tiltCards = document.querySelectorAll('.course-card, .team-card, .glass-card');
+    const tiltCards = document.querySelectorAll('.course-card, .team-card, .glass-card, .bento-card');
 
     tiltCards.forEach(card => {
         card.classList.add('tilt-card'); // Ensure class exists
@@ -72,6 +72,19 @@ document.addEventListener('DOMContentLoaded', () => {
             card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
         });
     });
+
+    // --- Hero Logo Tilt Effect (More viscous/fluid feel) ---
+    const logoContainer = document.querySelector('.hero-logo-container');
+    const logoMask = document.querySelector('.logo-mask');
+    const logoStroke = document.querySelector('.logo-stroke-svg');
+
+    // --- Hero Logo Tilt Effect REMOVED as requested (User wanted static, no rotation) ---
+    // The logo will now use a CSS-only shimmer effect on hover.
+    /* 
+    if (logoContainer) {
+       // Logic removed to prevent "spinning"
+    } 
+    */
 
     // --- Modals Logic ---
     const modalTriggers = document.querySelectorAll('.modal-trigger');
@@ -111,6 +124,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close on Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeModal();
+    });
+
+    // --- Button Hover Effect (Radial Gradient) ---
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('mousemove', (e) => {
+            const rect = btn.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            btn.style.setProperty('--x', `${x}px`);
+            btn.style.setProperty('--y', `${y}px`);
+        });
     });
 
     // --- DJ Deck Simulator Logic ---
@@ -426,7 +450,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Synth Functions ---
+    // --- Custom DJ Scrollbar Logic ---
+    const carouselTrack = document.querySelector('.carousel-track');
+    const djSlider = document.getElementById('teamScroll');
+
+    if (carouselTrack && djSlider) {
+        let isDragging = false;
+        let animationFrameId;
+
+        // 1. Sync Slider -> Scroll (User drags slider)
+        djSlider.addEventListener('input', () => {
+            isDragging = true;
+            const scrollableWidth = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+            const scrollValue = (djSlider.value / 100) * scrollableWidth;
+
+            // Use auto behavior for direct 1:1 control during drag
+            carouselTrack.scrollTo({
+                left: scrollValue,
+                behavior: 'auto'
+            });
+        });
+
+        djSlider.addEventListener('change', () => {
+            isDragging = false; // Released
+        });
+
+        // Also reset on mouseup/touchend to be safe
+        djSlider.addEventListener('mouseup', () => isDragging = false);
+        djSlider.addEventListener('touchend', () => isDragging = false);
+
+        // 2. Sync Scroll -> Slider (User swipes cards)
+        carouselTrack.addEventListener('scroll', () => {
+            if (!isDragging) {
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+                animationFrameId = requestAnimationFrame(() => {
+                    const scrollableWidth = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+                    if (scrollableWidth > 0) {
+                        const navValue = (carouselTrack.scrollLeft / scrollableWidth) * 100;
+                        djSlider.value = navValue;
+                    }
+                });
+            }
+        });
+
+        // Initial set
+        carouselTrack.dispatchEvent(new Event('scroll'));
+    }
+
+    // --- Stats Counter Animation ---
     function playAirhorn(time) {
         const osc = audioContext.createOscillator();
         const gain = audioContext.createGain();
@@ -972,9 +1044,226 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FAQ Accordion ---
     const faqItems = document.querySelectorAll('.faq-item');
+
+    // Open the first item by default
+    if (faqItems.length > 0) {
+        faqItems[0].classList.add('faq-open');
+    }
+
     faqItems.forEach(item => {
         item.querySelector('.faq-question').addEventListener('click', () => {
-            item.classList.toggle('active');
+            // Check if this item is currently open
+            const isOpen = item.classList.contains('faq-open');
+
+            // Close all items
+            faqItems.forEach(i => i.classList.remove('faq-open'));
+
+            // If it wasn't open, open it (toggle behavior)
+            if (!isOpen) {
+                item.classList.add('faq-open');
+            }
         });
     });
+
+    // --- Step-Based Carousel with Auto-Flip & Drag ---
+    const track = document.querySelector('.carousel-track');
+
+    if (track) {
+        let isDragging = false;
+        let startPos = 0;
+        let currentTranslate = 0;
+        let prevTranslate = 0;
+        let animationID;
+        let autoPlayInterval;
+
+        const getPositionX = (event) => {
+            return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+        }
+
+        const touchStart = (index) => {
+            return function (event) {
+                isDragging = true;
+                startPos = getPositionX(event);
+                animationID = requestAnimationFrame(animation);
+                track.style.cursor = 'grabbing';
+                clearInterval(autoPlayInterval); // Pause auto-play on interaction
+            }
+        }
+
+        const touchEnd = () => {
+            isDragging = false;
+            cancelAnimationFrame(animationID);
+            track.style.cursor = 'grab';
+
+            const movedBy = currentTranslate - prevTranslate;
+
+            // Threshold to trigger slide
+            if (movedBy < -50) {
+                moveNext();
+            } else if (movedBy > 50) {
+                movePrev();
+            } else {
+                // Snap back if didn't move enough
+                track.style.transform = 'translateX(0)';
+            }
+
+            currentTranslate = 0;
+            prevTranslate = 0;
+
+            // Restart auto-play
+            startAutoPlay();
+        }
+
+        const touchMove = (event) => {
+            if (isDragging) {
+                const currentPosition = getPositionX(event);
+                currentTranslate = prevTranslate + currentPosition - startPos;
+            }
+        }
+
+        // --- Click to Flip (User Request) ---
+        const teamCards = document.querySelectorAll('.team-card');
+        teamCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Toggle flipped class
+                card.classList.toggle('flipped');
+            });
+            // Optional: Remove hover effect if click is preferred? 
+            // The user said "on hover clicks should flip" is ambiguous. 
+            // "Upon hovering, clicks should flip" -> implies hover does nothing?
+            // "Check that they don't get cut off on flip"
+            // Usually keeping hover + click is safe.
+        });
+
+        // --- Arrow Navigation ---
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        if (prevBtn && nextBtn) {
+            const getScrollAmount = () => {
+                const firstCard = track.querySelector('.team-card');
+                return firstCard ? (firstCard.offsetWidth + 24) : 320; // card width + gap (24px)
+            };
+
+            prevBtn.addEventListener('click', () => {
+                track.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+            });
+
+            nextBtn.addEventListener('click', () => {
+                track.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+            });
+        }
+
+        const animation = () => {
+            if (isDragging) {
+                track.style.transform = `translateX(${currentTranslate}px)`;
+                requestAnimationFrame(animation);
+            }
+        }
+
+        // Event Listeners
+        track.addEventListener('touchstart', touchStart(0));
+        track.addEventListener('touchend', touchEnd);
+        track.addEventListener('touchmove', touchMove);
+
+        track.addEventListener('mousedown', touchStart(0));
+        track.addEventListener('mouseup', touchEnd);
+        track.addEventListener('mouseleave', () => {
+            if (isDragging) touchEnd();
+        });
+        track.addEventListener('mousemove', touchMove);
+
+        // Prevent context menu on long press
+        window.oncontextmenu = function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }
+
+        const moveNext = () => {
+            const cards = track.querySelectorAll('.team-card');
+            if (cards.length === 0) return;
+
+            const firstCard = cards[0];
+            const cardWidth = firstCard.offsetWidth;
+            const gap = 30;
+            const moveAmount = cardWidth + gap;
+
+            track.style.transition = 'transform 0.5s ease-in-out';
+            track.style.transform = `translateX(-${moveAmount}px)`;
+
+            track.addEventListener('transitionend', () => {
+                track.style.transition = 'none';
+                track.style.transform = 'translateX(0)';
+                track.appendChild(firstCard);
+            }, { once: true });
+        };
+
+        const movePrev = () => {
+            const cards = track.querySelectorAll('.team-card');
+            if (cards.length === 0) return;
+
+            const lastCard = cards[cards.length - 1];
+            const cardWidth = cards[0].offsetWidth;
+            const gap = 30;
+            const moveAmount = cardWidth + gap;
+
+            // Move last card to front instantly
+            track.style.transition = 'none';
+            track.prepend(lastCard);
+            track.style.transform = `translateX(-${moveAmount}px)`;
+
+            // Force reflow
+            void track.offsetWidth;
+
+            // Animate to 0
+            track.style.transition = 'transform 0.5s ease-in-out';
+            track.style.transform = 'translateX(0)';
+        };
+
+        const startAutoPlay = () => {
+            clearInterval(autoPlayInterval);
+            // autoPlayInterval = setInterval(moveNext, 3500); // Disabled Auto-Scroll as requested
+        }
+
+        // --- Musical Note Animation on Click ---
+        document.addEventListener('click', (e) => {
+            // Create multiple notes for a "burst" effect on ANY click
+            const noteCount = 3;
+            for (let i = 0; i < noteCount; i++) {
+                setTimeout(() => {
+                    createMusicalNote(e.clientX, e.clientY);
+                }, i * 100); // Stagger them slightly
+            }
+        });
+        function createMusicalNote(x, y) {
+            const note = document.createElement('span');
+            note.classList.add('musical-note');
+
+            const notes = ['♪', '♫', '♩', '♬', '♭', '♮', '♯'];
+            note.innerText = notes[Math.floor(Math.random() * notes.length)];
+
+            // Randomize styles
+            const colors = ['var(--primary-color)', 'var(--secondary-color)', '#fff', '#ff8fa3', '#9d7bf5'];
+            note.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+            // Random offset to make them spread out
+            const offsetX = (Math.random() - 0.5) * 40;
+            const offsetY = (Math.random() - 0.5) * 20;
+
+            note.style.left = `${x + offsetX}px`;
+            note.style.top = `${y + offsetY}px`;
+
+            // Random rotation for the animation
+            const rotation = (Math.random() - 0.5) * 60; // -30 to +30 deg
+            note.style.setProperty('--rotation', `${rotation}deg`);
+
+            document.body.appendChild(note);
+
+            // Clean up
+            setTimeout(() => {
+                note.remove();
+            }, 1000);
+        }
+    }
 });

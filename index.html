@@ -16,17 +16,13 @@
     <div class="grain-overlay"></div>
 
     <!-- Background Elements -->
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
+    <!-- Background Elements -->
+    <!-- Blobs removed as requested -->
     <div class="blob blob-3"></div>
-    <div class="cable cable-1">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path d="M0,0 C50,50 50,50 100,100" stroke="black" stroke-width="0.5" fill="none" />
-        </svg>
-    </div>
+    <!-- Removed cable/diagonal stripe as requested -->
 
     <header class="header">
-        <div class="container">
+        <div class="container header-container">
             <nav class="nav">
                 <a href="#about" class="nav-link">О НАС</a>
                 <a href="#courses" class="nav-link">КУРСЫ</a>
@@ -38,17 +34,64 @@
         </div>
     </header>
 
-    <main>
+    <main class="main">
         <!-- Hero Section -->
         <section id="hero" class="section hero">
+            <!-- SVG Filter for the Gooey/Inflated effect -->
+            <svg style="visibility: hidden; position: absolute;" width="0" height="0">
+                <filter id="goo">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
+                        result="goo" />
+                    <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+                </filter>
+            </svg>
             <div class="container hero-container">
                 <div class="hero-logo-wrapper">
-                    <img src="assets/images/selectlogo-nosubtitle.PNG" alt="Select Academy Logo" class="hero-logo">
+                    <div class="hero-logo-container">
+                        <!-- Liquid Gradient Background (Masked by CSS pointing to SVG) -->
+                        <div class="logo-mask">
+                            <div class="liquid-gradient"></div>
+                            <div class="glass-overlay"></div>
+                        </div>
+
+                        <!-- Inline SVG for Stroke Animation (Overlaid) -->
+                        <svg class="logo-stroke-svg" viewBox="0 0 3763 3436" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#F5556B;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#8A5CF5;stop-opacity:1" />
+                                </linearGradient>
+                                <filter id="warpFilter">
+                                    <feTurbulence type="fractalNoise" baseFrequency="0.001 0.001" numOctaves="1"
+                                        result="warp" />
+                                    <feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="40"
+                                        in="SourceGraphic" in2="warp" />
+                                    <animate xlink:href="#warpFilter" attributeName="baseFrequency" dur="10s"
+                                        values="0.001 0.001; 0.002 0.005; 0.001 0.001" repeatCount="indefinite" />
+                                </filter>
+                            </defs>
+                            <g class="logo-group">
+                                <path class="logo-path"
+                                    d="M618.61 128.327C734.021 125.36 872.269 148.039 962.115 216.931C1049.51 283.945 1132.64 382.341 1150.37 487.984C1166.75 585.609 1100.93 709.102 983.236 720.885C904.098 728.807 846.255 674.066 796.617 627.2C764.789 597.15 725.816 611.7 703.226 642.725C661.512 695.535 629.363 820.672 744.577 811.182C842.377 803.126 929.115 762.419 1020.58 732.192C1065.68 717.343 1111.2 703.58 1157.09 690.92C1179.82 684.575 1202.46 677.461 1225.72 672.868C1283.94 661.367 1344.83 665.321 1395.76 695.765C1440.73 722.648 1453.48 759.368 1466.11 804.754C1471 822.364 1476.35 840.085 1480.24 857.902C1488.1 893.984 1488.95 932.999 1481.42 969.177C1471.93 1014.74 1450.03 1056.49 1434.35 1100.32C1407.89 1174.23 1384.99 1249.32 1356.64 1322.66C1339.86 1366.1 1319.3 1408.39 1300.64 1451.19C1283.61 1490.27 1268.64 1534.12 1242.79 1569.07C1229.25 1587.38 1212.99 1603.9 1190.2 1612.6C1153.68 1626.53 1113.76 1615.58 1076.09 1624.25C1044.34 1631.55 1018.5 1648.94 989.007 1660.88C966.096 1670.16 939.52 1674.76 914.921 1679.08C796.096 1699.95 631.391 1701.54 527.827 1637.43C499.408 1617.02 459.564 1582.08 430.911 1566.65C374.08 1536.03 326.263 1526.77 274.826 1482.15C201.884 1416.94 147.092 1319.82 139.622 1226.4C132.542 1137.87 179.783 1044.03 291.531 1056.65C357.884 1064.15 393.954 1117.58 451.327 1140.79C483.02 1153.6 525.617 1157.65 559.949 1162.98C689.55 1182.47 815.901 1179.29 946.403 1176.75C994.547 1175.82 1051.86 1170.53 1086.53 1136.36C1115.08 1108.69 1126.73 1063.45 1123.34 1025.96C1118.1 968.079 1103.8 897.015 1022.98 902.142C923.5 908.452 890.936 978.484 821.989 1029.37C773.729 1064.98 713.77 1094.35 650.757 1097.91C532.091 1103.07 425.267 1067.32 335.199 997.995C233.733 919.903 185.492 819.236 174.602 699.335C162.134 562.073 223.932 383.441 319.931 277.239C366.651 225.553 482.022 154.955 553.911 135.885C573.261 130.752 597.96 129.621 618.61 128.327Z" />
+                                <path class="logo-path"
+                                    d="M325.538 1634.6C327.998 1634.31 330.466 1634.07 332.938 1633.89C374.6 1630.87 398.928 1649.59 428.117 1673.26C458.683 1698.05 487.69 1708.46 523.778 1722.52C623.472 1761.35 731.278 1762.16 838.016 1761.21C886.572 1760.77 954.785 1758.56 1001.18 1744.7C1049.82 1730.17 1094.15 1681.79 1149.42 1676.53C1189.74 1672.69 1186.45 1728.1 1193.6 1752.66C1197.75 1766.94 1198.84 1774.08 1207.43 1788.09C1221.75 1812.4 1248.32 1826.42 1270.38 1843.98C1305.04 1871.56 1329.14 1918.83 1289.68 1953C1267.07 1972.58 1242.05 1985.14 1210.9 1989.12C1143.91 1997.67 1084.93 1958.62 1024.75 1938.71C975.378 1922.39 923.883 1913.12 871.725 1912.64C821.901 1912.18 784.956 1929.32 750.527 1961.3C705.63 2002.76 680.893 2058.97 681.892 2117.28C682.821 2160.32 698.985 2189.44 751.329 2186.89C821.053 2184.97 873.121 2141.92 934.316 2121.07C1002.26 2099.13 1124.11 2093.63 1181.16 2143.2C1250.19 2203.18 1176.62 2335.66 1190.26 2413.9C1198.67 2462.14 1210.15 2498.3 1219.88 2545.25C1221.3 2552.11 1215.66 2567.7 1208.79 2572.29C1152.2 2599.9 1067.39 2564.57 1006.18 2559.61C973.031 2554.61 938.574 2550.35 905.334 2549.8C766.808 2547.48 674.177 2594.27 678.808 2730.97C680.18 2771.46 684.357 2836.37 715.213 2868.96C743.141 2898.45 804.007 2826.97 822.725 2809.03C857.139 2775.32 918.656 2725.3 964.991 2710.81C1010.3 2696.65 1134.95 2693.03 1180.37 2699.46C1202.31 2702.65 1223.6 2708.8 1243.55 2717.73C1330.74 2756.34 1348.49 2818.8 1360.26 2899.96C1364.23 2927.36 1371.99 2958.74 1379.08 2985.74C1388.12 3019.5 1398.35 3052.98 1409.75 3086.14C1423.77 3127.8 1446.45 3173.74 1420.5 3215.68C1346.7 3334.92 1181.99 3238.86 1080.91 3210.45C1047.94 3201.19 1017.52 3192.61 982.674 3192.37C912.567 3190.33 827.928 3231.42 774.282 3270.08C714.886 3312.88 680.591 3347.21 603.668 3370.55C550.347 3386.73 453.706 3400.87 400.874 3379.07C335.098 3351.94 334.006 3256.65 328.929 3200.72C326.142 3170 321.429 3132.04 319.752 3100.21C317.864 3055.91 319.054 3011.55 323.315 2967.39C329.198 2901.32 343.523 2831.45 344.913 2765.55C346.265 2701.47 342.208 2635.77 341.659 2571.39C340.738 2463.26 343.818 2354.3 336.751 2246.42C331.769 2165.3 322.558 2084.45 309.149 2004.14C303.865 1971.96 297.139 1921.52 286.098 1891.9C259.543 1820.67 208.961 1763.15 255.214 1685.89C273.194 1655.86 288.48 1644.69 325.538 1634.6Z" />
+                                <path class="logo-path"
+                                    d="M2344.37 352.857C2384.96 348.937 2419.31 363.736 2450.58 386.133C2553.33 459.729 2619.95 590.309 2623.01 708.8C2624.15 752.988 2615.3 798.612 2616.9 843.006C2618.06 877.498 2626.99 913.009 2627.5 947.42C2628.4 1008.3 2624.06 1071.41 2619.07 1132.16C2616.88 1159.07 2614.02 1185.93 2610.51 1212.72C2604.44 1257.77 2585.48 1332.69 2633.32 1364.29C2694.44 1404.67 2680.52 1321.22 2689.44 1292.78C2694.53 1276.54 2706.1 1257.28 2716.33 1242.92C2733.4 1218.43 2753.25 1195.65 2775.56 1174.96C2879.55 1080.18 3086.93 975.251 3232.73 945.428C3315.98 928.4 3406.81 934.779 3479.97 978.415C3504.24 992.654 3525.42 1010.86 3542.46 1032.12C3580.07 1078.83 3629.87 1199.18 3642.25 1258.76C3661.53 1351.62 3645.52 1434.22 3588.66 1512.4C3534.55 1581.7 3426.24 1690.07 3319.45 1656.99C3276.71 1643.75 3231.67 1611.76 3181.17 1600.98C3131.74 1590.43 3090.59 1590.48 3040.03 1591C3007.28 1591.34 2958.14 1590.51 2927.39 1598.3C2871.56 1612.43 2835.19 1653.75 2780.39 1675.1C2737.35 1691.88 2700.6 1683.06 2663.2 1702.88C2624.65 1723.3 2618.9 1771.33 2569.49 1781.24C2537.12 1787.74 2511.9 1782.23 2479.77 1784.23C2459.54 1785.49 2437.28 1792.86 2416.59 1791.93C2406.75 1791.49 2397.54 1788.77 2389.52 1783.54C2347.18 1755.91 2322.8 1680.91 2315.78 1636.67C2311.61 1610.45 2311.25 1580.2 2307.38 1552.97C2299.66 1498.7 2294.88 1446.5 2295.12 1391.83C2295.35 1340.14 2302.38 1293.83 2307.22 1242.77C2313.42 1177.46 2312.84 1114.78 2302.71 1049.78C2293.32 989.486 2276.55 927.408 2267.33 867.652C2258.43 809.992 2258.64 758.784 2243.03 700.508C2228.52 646.329 2189.83 597.913 2179.79 546.961C2171.44 504.988 2182.06 461.717 2209.22 427.009C2242.55 384.076 2288.48 361.734 2344.37 352.857Z" />
+                                <path class="logo-path"
+                                    d="M1813.71 1720.3C1898.55 1709.28 1915.73 1780.44 1965.44 1822.18C2001.01 1852.05 2050.42 1860.45 2092.9 1878.94C2149.22 1903.45 2183.29 1945.6 2204.09 1998.1C2212.19 2014.45 2219.8 2034.64 2230.17 2049.57C2263.18 2097.11 2322.46 2138.73 2299.92 2201.96C2289.71 2230.6 2269.84 2259.32 2239.66 2273.58C2192.64 2295.8 2150.99 2258.23 2119.72 2230.84C2082.61 2198.79 2041.69 2160.54 1991.97 2146.26C1933.24 2129.4 1861.75 2133.18 1806.78 2158.6C1743.92 2187.67 1705.16 2244.94 1684.4 2304.57C1623.66 2470.82 1692.1 2683.36 1886.69 2742.49C1953.92 2762.92 2054.66 2754.42 2110.17 2711.47C2221.94 2625.01 2225.82 2461.39 2359.3 2392.16C2389.81 2376.34 2432.15 2371.88 2465.7 2381.42C2481.51 2385.97 2499.15 2395.01 2506.08 2409.41C2525.39 2446.92 2485.06 2528.2 2469.44 2566.09C2439.2 2640.81 2400.8 2745.63 2402.25 2825.02C2405.14 2983.26 2335.57 2972.06 2202.04 2996.6C2170.93 3002.2 2140.44 3010.42 2110.99 3021.15C2048.65 3044.42 2011.64 3074.94 1961.27 3114.04C1858.18 3194.07 1692.46 3242.4 1573.52 3161.98C1473.69 3094.48 1436.54 2995.39 1413.26 2888.97C1406.09 2856.2 1400.11 2820.54 1387.66 2788.99C1374.54 2759.51 1353.79 2723.09 1336.66 2693.96C1303.85 2638.14 1278.14 2572.76 1267.49 2508.98C1240.82 2349.38 1256.55 2123.88 1357.42 1986.3C1395.03 1935 1496.8 1875.97 1556.76 1846.59C1582.41 1834.03 1612.68 1820.62 1638.47 1806.22C1693.01 1775.78 1748.92 1729.33 1813.71 1720.3Z" />
+                                <path class="logo-path"
+                                    d="M2640.55 1809.31C2741.89 1805.62 2821.71 1865.6 2906.18 1906.15C2945.56 1925.49 2987.66 1939.8 3031.3 1948.68C3125.38 1967.05 3137.62 1947.05 3222.28 1928.24C3288.96 1913.42 3395.11 1934.9 3450.75 1970.61C3487.16 1993.55 3515.41 2028.33 3523.39 2069.04C3537.32 2140.12 3475.57 2208.21 3437.81 2265.89C3429.39 2278.75 3398.87 2312.04 3382.09 2319.05C3321.86 2344.24 3231 2343.22 3166.85 2328.7C3133.26 2318.43 3090.25 2276.68 3042.23 2287.4C2941.12 2309.95 2979.37 2415.28 2966.01 2483.92C2955.59 2537.46 2933.94 2566.28 2914.47 2612.59C2903.95 2637.9 2897.04 2664.33 2893.89 2691.24C2886.24 2753.17 2894.24 2845.43 2901.13 2906.96C2914.09 3022.63 2949.43 3128.83 2873.34 3234.41C2828.78 3294.79 2760.9 3336.68 2682.29 3349.7C2632.44 3357.96 2584.53 3348.27 2543.62 3320.1C2467.71 3267.84 2410.21 3172.38 2417.51 3083.93C2419.49 3059.73 2429.22 3036.83 2434.65 3013.35C2447.56 2957.54 2448.04 2898.89 2454.96 2842.28C2464.19 2766.5 2479.29 2691.41 2500.13 2617.58C2512.74 2572.56 2527.96 2528.18 2545.75 2484.65C2568.2 2429.1 2651.23 2267.82 2640.79 2217.46C2627.11 2151.45 2490.7 2183.73 2439.21 2176.12C2425.23 2174.05 2413.33 2169.86 2401.9 2162.11C2370.47 2140.82 2361.56 2101.97 2338.73 2074.28C2307.25 2036.11 2226.66 1987.04 2220.37 1938.03C2218.72 1925.1 2224.6 1912.58 2233.47 1902.71C2280.52 1850.37 2454.3 1834.87 2526.33 1825.18C2564.6 1820.03 2601.95 1812.55 2640.55 1809.31Z" />
+                                <path class="logo-path"
+                                    d="M1609.94 482.02C1624.82 480.495 1641.59 482.719 1656.62 483.367C1674.14 484.122 1691.62 483.894 1709.15 483.725C1799.73 482.855 1934.2 475.666 2019.15 496.257C2049.58 503.632 2078.28 515.651 2103.22 533.296C2182.64 589.482 2192 683.06 2213.96 766.005C2221.41 794.155 2234.07 823.836 2237.28 852.477C2238.01 859.02 2238.5 868.077 2232.48 872.97C2229.42 875.456 2226.92 876.749 2222.82 875.946C2205.54 872.569 2182.61 852.9 2168.33 843.07C2112.24 804.487 2034.69 760.476 1961.63 765.571C1917.7 768.635 1872.93 789.106 1844.51 819.925C1827.14 838.755 1816.79 861.854 1819.63 886.817C1821.56 903.765 1829.59 923.074 1844.71 933.851C1864.61 948.034 1888.92 940.749 1911.44 937.82C1928.86 935.554 1947.2 935.714 1964.81 934.686C2042.36 930.16 2126.6 930.376 2191.58 975.449C2218.65 994.228 2237.59 1019.18 2242.17 1050.36C2246.13 1077.27 2244.41 1104.8 2245.17 1131.9C2246.28 1171.56 2251.48 1214.44 2245.51 1253.77C2243.9 1264.38 2240.71 1276.23 2233.08 1284.65C2225.04 1293.52 2211.86 1296.86 2199.64 1295.48C2169.75 1292.09 2137.41 1275.23 2110.34 1263.47C2064.8 1243.71 2019.67 1221.71 1970.95 1209.18C1920.87 1196.3 1865.33 1195 1813.67 1199.83C1779.46 1203.03 1749.51 1211.37 1727.15 1236.99C1702.41 1265.34 1681.45 1327.69 1686.75 1363.48C1687.6 1369.23 1690.15 1376.13 1695.93 1379.24C1717.4 1390.79 1821.18 1335.52 1848.36 1327.11C1867.27 1321.26 1887.4 1318.74 1907.33 1318.5C1970.11 1317.75 2133.74 1340.02 2188.39 1364.54C2190.29 1365.55 2192.17 1366.61 2194.01 1367.71C2254.39 1403.94 2234.84 1462.49 2235.26 1517.29C2235.49 1547.02 2239.01 1580.75 2245.19 1609.8C2250.41 1635.6 2259.31 1660.67 2271.68 1684.35C2284.49 1709.24 2300.01 1732.05 2306.02 1758.4C2317.21 1807.02 2287.22 1812.92 2256.8 1829.47C2144.74 1890.43 2117.69 1864.77 2043.74 1780.09C2026.13 1759.91 1968.54 1730.81 1946.19 1703.26C1912.63 1661.87 1878.24 1585 1807.69 1624.37C1788.15 1633.06 1760.62 1656.99 1741.76 1664.02C1669.37 1691 1640.74 1707.99 1586.66 1760.49C1519.28 1825.9 1419.51 1865.2 1331.38 1803.4C1275.51 1764.37 1247.22 1700.74 1257.49 1637.19C1264.75 1593.2 1290.91 1567.52 1311.62 1529.41C1326.85 1501.41 1340.82 1471.61 1355.7 1443.19C1379.38 1397.99 1402.05 1352.63 1420.19 1305.26C1457.94 1206.74 1483.74 1103.7 1504.19 1001.02C1515.45 944.482 1526.95 878.689 1527.67 820.829C1528.09 786.835 1514.56 737.765 1510.01 702.227C1502.47 643.328 1503.52 562.257 1544.56 512.626C1561.64 491.98 1583.11 484.681 1609.94 482.02Z" />
+                            </g>
+                        </svg>
+                    </div>
                 </div>
                 <p class="hero-subtitle">АКАДЕМИЯ ДИДЖЕИНГА В САНКТ-ПЕТЕРБУРГЕ</p>
                 <div class="hero-cta">
                     <a href="#courses" class="btn btn-primary">
-                        ВЫБРАТЬ КУРС <i class="ph-bold ph-arrow-right"></i>
+                        ВЫБРАТЬ КУРС
                     </a>
                 </div>
             </div>
@@ -58,25 +101,52 @@
         <section id="about" class="section about">
             <div class="container">
                 <h2 class="section-title text-gradient reveal">О НАС</h2>
-                <div class="about-content">
-                    <div class="about-text-block glass-card">
-                        <p class="lead">«SELECT ACADEMY» — это академия диджеинга, созданная при поддержке <a
-                                href="https://t.me/vnvnc_spb" target="_blank">@vnvnc_spb</a> <i
-                                class="ph-fill ph-disc"></i></p>
-                        <p>Наша академия — место встречи тех, кто влюблен в музыку, хочет обучиться диджеингу,
-                            попрактиковаться самостоятельно и стать частью большого творческого коммьюнити VNVNC concert
-                            hall.</p>
-                        <ul class="styled-list">
-                            <li><i class="ph-bold ph-caret-right"></i> 8 лет клуб VNVNC concert hall является одним из
-                                лучших клубов Санкт-Петербурга</li>
-                            <li><i class="ph-bold ph-caret-right"></i> Выступают известные диджеи и популярные артисты
-                            </li>
-                            <li><i class="ph-bold ph-caret-right"></i> Команда клуба растит молодых и талантливых
-                                музыкантов</li>
-                        </ul>
+                <div class="bento-grid about-grid">
+                    <!-- Text Card -->
+                    <div class="bento-card about-text-card reveal">
+                        <div class="card-content">
+                            <h3 class="card-title">SELECT ACADEMY</h3>
+                            <p class="lead">Академия диджеинга, созданная при поддержке <a href="https://t.me/vnvnc_spb"
+                                    target="_blank" class="highlight-link">@vnvnc_spb</a> <i
+                                    class="ph-fill ph-disc"></i></p>
+                            <p>Место встречи тех, кто влюблен в музыку. Обучайся, практикуйся и становись частью
+                                коммьюнити VNVNC concert hall.</p>
+
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-number">8</span>
+                                    <span class="stat-label">ЛЕТ ОПЫТА</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">TOP</span>
+                                    <span class="stat-label">КЛУБ СПБ</span>
+                                </div>
+                            </div>
+
+                            <ul class="styled-list">
+                                <li><i class="ph-bold ph-check-circle"></i> Выступают известные артисты</li>
+                                <li><i class="ph-bold ph-check-circle"></i> Растим молодых талантов</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="about-image-block">
-                        <img src="assets/images/aboutus.png" alt="About Us" class="floating-image">
+
+                    <!-- Visual Card (Placeholder for 3D) -->
+                    <div class="bento-card about-visual-card reveal">
+                        <div class="visual-content">
+                            <!-- CSS 3D Placeholder -->
+                            <!-- 3D Vinyl Record Animation -->
+                            <div class="vinyl-scene">
+                                <div class="vinyl-wrapper">
+                                    <div class="vinyl-disc">
+                                        <div class="vinyl-grooves"></div>
+                                        <div class="vinyl-label-center">
+                                            <img src="assets/images/selectlogo-nosubtitle.PNG" alt="Select Logo">
+                                        </div>
+                                    </div>
+                                    <div class="vinyl-shadow"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -109,7 +179,7 @@
                     <!-- Basic Course -->
                     <div class="course-card reveal">
                         <div class="course-image-wrapper">
-                            <img src="assets/images/basic.jpeg" alt="Basic Course">
+                            <img src="assets/images/academy-around-frontal-09-12-2025-16-29-54.png" alt="Course Basic">
                         </div>
                         <div class="course-info">
                             <div class="course-header">
@@ -124,7 +194,7 @@
                     <!-- Expert Course -->
                     <div class="course-card reveal">
                         <div class="course-image-wrapper">
-                            <img src="assets/images/expert.jpeg" alt="Expert Course">
+                            <img src="assets/images/around-clean-light-09-12-2025-16-37-45.png" alt="Course Expert">
                         </div>
                         <div class="course-info">
                             <div class="course-header">
@@ -139,14 +209,14 @@
                     <!-- Single Lesson -->
                     <div class="course-card reveal">
                         <div class="course-image-wrapper">
-                            <img src="assets/images/singlelesson.jpeg" alt="Single Lesson">
+                            <img src="assets/images/around-light-russian-09-12-2025-16-40-41.png" alt="Single Lesson">
                         </div>
                         <div class="course-info">
                             <div class="course-header">
                                 <h3>РАЗОВОЕ<br>ЗАНЯТИЕ</h3>
-                                <span class="price">3 000 ₽</span>
+                                <span class="price">5 000 ₽</span>
                             </div>
-                            <p class="course-desc">Закрыть вопросы и получить знания.</p>
+                            <p class="course-desc">Попробуй себя в диджеинге.</p>
                             <button class="btn btn-secondary modal-trigger" data-modal="modal-single">ПОДРОБНЕЕ</button>
                         </div>
                     </div>
@@ -176,15 +246,32 @@
         <section id="gallery" class="section gallery">
             <div class="container">
                 <h2 class="section-title text-gradient reveal">VIBE</h2>
-                <div class="gallery-grid">
-                    <!-- Only party/vibe photos -->
+            </div>
+            <div class="marquee-container">
+                <div class="marquee-track">
+                    <!-- Original Items -->
                     <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.27 (1).jpeg" alt="Vibe">
                     </div>
                     <div class="gallery-item"><img src="assets/images/dj.jpeg" alt="Vibe"></div>
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.28.jpeg" alt="Vibe"></div>
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.29.jpeg" alt="Vibe"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.28.jpeg" alt="Vibe">
+                    </div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.29.jpeg" alt="Vibe">
+                    </div>
                     <div class="gallery-item"><img src="assets/images/dj2.jpeg" alt="Vibe"></div>
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="Vibe"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="Vibe">
+                    </div>
+
+                    <!-- Duplicated Items for Infinite Loop -->
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.27 (1).jpeg" alt="Vibe">
+                    </div>
+                    <div class="gallery-item"><img src="assets/images/dj.jpeg" alt="Vibe"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.28.jpeg" alt="Vibe">
+                    </div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.29.jpeg" alt="Vibe">
+                    </div>
+                    <div class="gallery-item"><img src="assets/images/dj2.jpeg" alt="Vibe"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="Vibe">
+                    </div>
                 </div>
             </div>
         </section>
@@ -198,18 +285,142 @@
                     <p>Делили сцену с <strong>ЛСП, Pharaoh, BUSHIDO ZHO, OG BUDA, Lovv66, Yanix</strong>.</p>
                 </div>
 
-                <div class="team-grid">
-                    <!-- Team Photos -->
-                    <div class="team-card reveal"><img src="assets/images/photo_2025-11-27 21.16.23.jpeg" alt="DJ">
-                    </div>
-                    <div class="team-card reveal"><img src="assets/images/photo_2025-11-27 21.16.25.jpeg" alt="DJ">
-                    </div>
-                    <!-- Replaced/Removed broken links -->
-                    <div class="team-card reveal"><img src="assets/images/dj.jpeg" alt="DJ"></div>
-                    <div class="team-card reveal"><img src="assets/images/dj2.jpeg" alt="DJ"></div>
-                    <div class="team-card reveal"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="DJ">
+                <div class="carousel-window">
+                    <div class="carousel-track">
+                        <!-- Team Photos (Set 1) -->
+                        <div class="team-card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <img src="assets/images/photo_2025-11-27 21.16.23.jpeg" alt="DJ">
+                                </div>
+                                <div class="card-back">
+                                    <h3>DJ RESIDENT</h3>
+                                    <p>5 лет опыта</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <img src="assets/images/photo_2025-11-27 21.16.25.jpeg" alt="DJ">
+                                </div>
+                                <div class="card-back">
+                                    <h3>DJ PRO</h3>
+                                    <p>7 лет опыта</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <img src="assets/images/dj.jpeg" alt="DJ">
+                                </div>
+                                <div class="card-back">
+                                    <h3>DJ MASTER</h3>
+                                    <p>10 лет опыта</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <img src="assets/images/dj2.jpeg" alt="DJ">
+                                </div>
+                                <div class="card-back">
+                                    <h3>DJ EXPERT</h3>
+                                    <p>4 года опыта</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="DJ">
+                                </div>
+                                <div class="card-back">
+                                    <h3>DJ STAR</h3>
+                                    <p>6 лет опыта</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Team Photos (Set 2 - Duplicated for Loop) -->
+                        <div class="team-card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <img src="assets/images/photo_2025-11-27 21.16.23.jpeg" alt="DJ">
+                                </div>
+                                <div class="card-back">
+                                    <h3>DJ RESIDENT</h3>
+                                    <p>5 лет опыта</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <img src="assets/images/photo_2025-11-27 21.16.25.jpeg" alt="DJ">
+                                </div>
+                                <div class="card-back">
+                                    <h3>DJ PRO</h3>
+                                    <p>7 лет опыта</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <img src="assets/images/dj.jpeg" alt="DJ">
+                                </div>
+                                <div class="card-back">
+                                    <h3>DJ MASTER</h3>
+                                    <p>10 лет опыта</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <img src="assets/images/dj2.jpeg" alt="DJ">
+                                </div>
+                                <div class="card-back">
+                                    <h3>DJ EXPERT</h3>
+                                    <p>4 года опыта</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="card-inner">
+                                <div class="card-front">
+                                    <img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="DJ">
+                                </div>
+                                <div class="card-back">
+                                    <h3>DJ STAR</h3>
+                                    <p>6 лет опыта</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Custom DJ Scrollbar Control -->
+                <!-- Custom DJ Scrollbar Control with Arrows -->
+                <div class="carousel-controls-wrapper">
+                    <button class="nav-arrow-btn" id="prevBtn" aria-label="Назад">
+                        <i class="ph-bold ph-caret-left"></i>
+                    </button>
+
+                    <div class="scroll-control-container">
+                        <div class="scroll-track-decoration"></div>
+                        <input type="range" min="0" max="100" value="0" step="0.01" class="dj-slider" id="teamScroll"
+                            aria-label="Прокрутка преподавателей">
+                    </div>
+
+                    <button class="nav-arrow-btn" id="nextBtn" aria-label="Вперед">
+                        <i class="ph-bold ph-caret-right"></i>
+                    </button>
+                </div>
+
             </div>
         </section>
 
@@ -507,13 +718,16 @@
 
                         <div class="contact-links">
                             <a href="https://t.me/select_djacademy" target="_blank" class="contact-btn telegram">
-                                <i class="ph-bold ph-telegram-logo"></i> TELEGRAM
+                                <i class="ph-bold ph-telegram-logo"></i>
                             </a>
                             <a href="https://www.instagram.com/select.dj/" target="_blank"
                                 class="contact-btn instagram">
-                                <i class="ph-bold ph-instagram-logo"></i> INSTAGRAM
+                                <i class="ph-bold ph-instagram-logo"></i>
                             </a>
                         </div>
+                        <p style="font-size: 0.7rem; color: #aaa; margin-top: 10px; line-height: 1.2;">
+                            *Instagram — проект Meta Platforms Inc., деятельность которой в России запрещена.
+                        </p>
                     </div>
                 </div>
 
