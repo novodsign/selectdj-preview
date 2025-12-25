@@ -580,7 +580,7 @@ a {
     min-width: 250px;
     object-fit: cover;
     /* Optional: Blend mode if videos have black bg */
-    /* mix-blend-mode: lighten; */
+    mix-blend-mode: screen;
 }
 
 .hero-video.left {
@@ -601,6 +601,8 @@ a {
         /* Lift up slightly to frame "Register" button area? Or keep at bottom */
         z-index: 10000;
         /* Place above grain overlay (9999) */
+        mix-blend-mode: screen;
+        /* Fix for Safari Black Background: Treats black pixels as transparent */
     }
 
     /* Fix: Ensure container is above grain overlay */
