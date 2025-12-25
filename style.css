@@ -451,6 +451,7 @@ a {
 
 /* Header */
 .header {
+    position: fixed;
     top: 20px;
     left: 0;
     width: 100%;
@@ -617,7 +618,9 @@ a {
     }
 
     /* Hide videos when mobile menu is open to prevent overlap glitches */
-    body.menu-open .hero-videos {
+    body.menu-open .hero-videos,
+    body.menu-open .hero-container,
+    body.menu-open .hero-logo-container {
         visibility: hidden;
         opacity: 0;
         transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
