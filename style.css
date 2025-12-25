@@ -303,7 +303,27 @@ body {
 
 html {
     scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary-color) var(--bg-color);
+    overflow-x: hidden;
 }
+
+/* Custom Global Scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--secondary-color);
+    border-radius: 6px;
+    border: 3px solid var(--bg-color);
+    /* Creates padding effect */
+}
+
 
 body {
     background-color: var(--bg-color);
@@ -340,12 +360,15 @@ a {
 
 /* Container */
 .container {
+    width: 100%;
+    /* Force full width in flex container */
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
     position: relative;
     z-index: 2;
 }
+
 
 /* Background Blobs */
 .blob {
@@ -454,6 +477,12 @@ a {
     /* Center the fit-content nav */
 }
 
+/* Hide mobile toggle on desktop */
+.mobile-menu-toggle,
+.mobile-nav {
+    display: none;
+}
+
 .nav-link {
     font-family: var(--font-main);
     font-size: 0.8rem;
@@ -509,6 +538,10 @@ a {
     display: block;
     width: 100%;
     /* Removed problematic positioning */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    /* Ensure clear wrapping */
+    hyphens: auto;
 }
 
 /* Hero - Needs height */
@@ -521,14 +554,86 @@ a {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    position: relative;
+    /* Ensure potential absolute framing */
+    overflow: hidden;
+    /* Prevent video overflow */
 }
 
+/* Hero Videos */
+.hero-videos {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.hero-video {
+    position: absolute;
+    bottom: 0px;
+    height: auto;
+    width: 35vw;
+    max-width: 600px;
+    min-width: 250px;
+    object-fit: cover;
+    /* Optional: Blend mode if videos have black bg */
+    /* mix-blend-mode: lighten; */
+}
+
+.hero-video.left {
+    left: 0;
+}
+
+.hero-video.right {
+    right: 0;
+}
+
+@media (max-width: 768px) {
+    .hero-video {
+        width: 140px;
+        min-width: 0;
+        opacity: 1;
+        /* Full visibility */
+        bottom: 20%;
+        /* Lift up slightly to frame "Register" button area? Or keep at bottom */
+        z-index: 10000;
+        /* Place above grain overlay (9999) */
+    }
+
+    /* Fix: Ensure container is above grain overlay */
+    .hero-videos {
+        z-index: 10000;
+    }
+
+    /* Fix: Ensure text/buttons stay above videos */
+    .hero-container {
+        position: relative;
+        z-index: 10001;
+    }
+
+    .hero-video.left {
+        left: -20px;
+        /* Slight offset off-screen if needed */
+    }
+
+    .hero-video.right {
+        right: -20px;
+    }
+}
+
+
+
+/* Hero Logo Wrapper */
 .hero-logo-wrapper {
     margin-bottom: 30px;
     animation: popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     justify-content: center;
 }
+
 
 /* --- Hero Logo - Solid Gradient Style --- */
 /* Hide the liquid background since we are filling the SVG */
@@ -802,7 +907,6 @@ a {
     background: #fff;
     padding: 8px;
     border-radius: 50%;
-    box-shadow: 0 5px 15px rgba(26, 11, 46, 0.05);
 }
 
 /* --- Custom DJ Slider Scrollbar --- */
@@ -812,7 +916,8 @@ a {
     align-items: center;
     justify-content: center;
     gap: 20px;
-    width: 100%;
+    width: 90%;
+    /* Prevent overflow */
     max-width: 800px;
     margin: 40px auto 0;
 }
@@ -1087,12 +1192,13 @@ a {
 /* Gallery (Vibe) - Marquee */
 #gallery {
     flex-direction: column;
-    padding-bottom: 0;
+    padding-bottom: 150px;
 }
 
 .marquee-container {
     width: 100%;
     overflow: hidden;
+    /* Critical for mobile */
     position: relative;
     padding: 40px 0;
 }
@@ -1101,7 +1207,13 @@ a {
     display: flex;
     gap: 20px;
     width: fit-content;
-    animation: scroll-left 40s linear infinite;
+    will-change: transform;
+    cursor: grab;
+    /* animation removed for JS control */
+}
+
+.marquee-track:active {
+    cursor: grabbing;
 }
 
 .marquee-track:hover {
@@ -1157,32 +1269,32 @@ a {
 .team-intro {
     text-align: center;
     max-width: 900px;
-    margin: 0 auto 60px;
-    font-size: 1.2rem;
+    width: 90%;
+    /* Prevent touching edges on mobile */
+    margin: 0 auto 40px;
+    font-size: 1.1rem;
 }
 
 /* Carousel Window limits visibility */
 .carousel-window {
     width: 100%;
-    overflow: hidden;
-    /* Hide scrollbar but allow inner scroll logic */
+    overflow-x: auto;
+    /* enable horizontal scroll on mobile */
+    -webkit-overflow-scrolling: touch;
 }
 
 .carousel-track {
     display: flex;
-    gap: 24px;
-    /* Standardize gap */
+    gap: 16px;
     width: 100%;
+    /* Ensure it fits */
+    max-width: 100%;
+    /* Double constraint */
     overflow-x: auto;
-    /* Enable horizontal scroll */
     scroll-behavior: smooth;
-    padding: 60px 4px;
-    /* Increased padding (was 20px) to prevent 3D flip clipping */
-    /* Space for shadows and rotation arc */
-    /* Hide scrollbar */
+    padding: 20px 4px;
     -ms-overflow-style: none;
     scrollbar-width: none;
-
     /* Scroll Snap Logic - The "Qualitative" Feel */
     scroll-snap-type: x mandatory;
 }
@@ -1197,88 +1309,38 @@ a {
     flex: 0 0 300px;
     min-width: 280px;
     aspect-ratio: 3/4;
-    perspective: 1000px;
+    perspective: none;
     background: transparent;
     border: none;
     box-shadow: none;
     padding: 0;
     white-space: normal;
-
+    overflow: hidden;
+    border-radius: 25px;
+    border: 4px solid #fff;
     /* Snap Alignment */
     scroll-snap-align: center;
 }
 
-@media (max-width: 768px) {
-    .team-card {
-        /* On mobile, maybe show 1 full card or 1.5? 
-           User asked for 3 visible, but that's too small on mobile.
-           Let's stick to 1 on mobile for usability. */
-        flex: 0 0 100%;
-    }
-}
-
-.card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    transition: transform 0.8s;
-    transform-style: preserve-3d;
-    border-radius: 25px;
-    box-shadow: 0 15px 30px rgba(26, 11, 46, 0.05);
-}
-
-.team-card:hover .card-inner,
-.team-card.flipped .card-inner {
-    transform: rotateY(180deg);
-}
-
-.card-front,
-.card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    border-radius: 25px;
-    overflow: hidden;
-    border: 4px solid #fff;
-}
-
-.card-front {
-    background-color: #fff;
-}
-
-.card-front img {
+.team-card img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
-.card-back {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    color: #fff;
-    transform: rotateY(180deg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    border-color: var(--primary-color);
+@media (max-width: 768px) {
+    .team-card {
+        flex: 0 0 70vw;
+        /* Larger on mobile for better visibility */
+        min-width: 250px;
+        aspect-ratio: 3/4;
+        margin-right: 10px;
+    }
 }
 
-.card-back h3 {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-    color: var(--secondary-color);
-}
+/* Removed card-inner/front/back flip logic */
 
-.card-back p {
-    font-size: 1.1rem;
-    font-family: var(--font-body);
-}
 
 /* Clubs Ticker */
 .clubs-ticker-wrapper {
@@ -1460,8 +1522,11 @@ a {
 
 .contact-links {
     display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    gap: 12px;
+    flex-wrap: nowrap;
+    /* keep icons on one line */
+    overflow: visible;
+    /* Fix scrollbar glitch */
 }
 
 .contact-btn {
@@ -1484,6 +1549,10 @@ a {
     position: relative;
     overflow: hidden;
     z-index: 1;
+    /* Ensure icons stay centered */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .contact-btn::before {
@@ -1505,8 +1574,7 @@ a {
     border-color: transparent;
     box-shadow: 0 10px 20px rgba(138, 92, 245, 0.4);
     /* Purple shadow */
-    transform: scale(1.05);
-    /* Subtle scale instead of jump */
+    /* Removed transform scale as requested */
 }
 
 .contact-btn:hover::before {
@@ -1519,7 +1587,7 @@ a {
     /* Styles handled by generic .contact-btn:hover now */
     background: transparent;
     /* Ensure no conflict */
-    transform: scale(1.05);
+    /* Removed transform scale */
 }
 
 .footer {
@@ -1556,9 +1624,166 @@ a {
         max-width: 90%;
     }
 
+    /* Mobile menu needed */
+    .header {
+        padding: 20px;
+    }
+
+    .header-container {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
     .nav {
         display: none;
-        /* Mobile menu needed */
+    }
+
+    .mobile-menu-toggle {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 20px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        z-index: 20001;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Mobile Menu Decorations */
+    .mobile-menu-decor {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .decor-item {
+        position: absolute;
+        opacity: 0.8;
+        /* Increased from 0.1 for better visibility */
+        color: var(--secondary-color);
+    }
+
+    .decor-top-left {
+        top: -50px;
+        left: -50px;
+        width: 200px;
+        height: 200px;
+        transform: rotate(-15deg);
+    }
+
+    .decor-bottom-right {
+        bottom: -50px;
+        right: -50px;
+        width: 250px;
+        height: 250px;
+        transform: rotate(15deg);
+    }
+
+    .decor-center-floating {
+        top: 50%;
+        left: 10%;
+        width: 100px;
+        height: 100px;
+        opacity: 0.05;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    @keyframes spin-slow {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .decor-spin {
+        animation: spin-slow 20s linear infinite;
+    }
+
+    .mobile-menu-toggle span {
+        width: 100%;
+        height: 3px;
+        background-color: var(--deep-purple);
+        border-radius: 3px;
+        transition: all 0.3s ease;
+    }
+
+    .mobile-menu-toggle.active span:nth-child(1) {
+        transform: translateY(8.5px) rotate(45deg);
+        background-color: var(--secondary-color);
+    }
+
+    .mobile-menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .mobile-menu-toggle.active span:nth-child(3) {
+        transform: translateY(-8.5px) rotate(-45deg);
+        background-color: var(--secondary-color);
+    }
+
+    .mobile-nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
+        transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        z-index: 20000;
+    }
+
+    .mobile-nav.active {
+        right: 0;
+    }
+
+    .mobile-nav-link {
+        font-family: var(--font-main);
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--deep-purple);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: color 0.3s;
+    }
+
+    .mobile-nav-link:hover {
+        color: var(--secondary-color);
+    }
+
+    /* Ensure body doesn't scroll when menu is open */
+    body.menu-open {
+        overflow: hidden;
     }
 
     /* Stack content vertically */
@@ -1566,6 +1791,21 @@ a {
     .contact-container {
         grid-template-columns: 1fr;
         gap: 40px;
+    }
+
+    .hero-logo-container {
+        width: 100%;
+        height: auto;
+        /* Allow aspect ratio to define height */
+        max-width: 90%;
+        /* Prevent touching edges */
+    }
+
+    /* Make marquee items larger on mobile */
+    .gallery-item {
+        flex: 0 0 60vw;
+        /* Make them much bigger (was 25vw) */
+        height: 80vw;
     }
 
     .rent-content {
@@ -1615,7 +1855,10 @@ a {
     }
 
     .contact-links {
-        flex-direction: column;
+        flex-direction: row;
+        /* Force side-by-side */
+        justify-content: center;
+        /* Center them */
     }
 
     .clubs-ticker {
@@ -1954,19 +2197,7 @@ a {
     pointer-events: none;
 }
 
-.te-speaker-grill {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
-}
-
-.te-speaker-grill span {
-    width: 5px;
-    height: 5px;
-    background: #222;
-    border-radius: 50%;
-    box-shadow: inset 0 1px 1px rgba(26, 11, 46, 0.8);
-}
+/* te-speaker-grill removed */
 
 /* Main Grid */
 .te-grid {
@@ -2008,6 +2239,8 @@ a {
     opacity: 0.6;
     text-transform: uppercase;
     letter-spacing: 1px;
+    white-space: nowrap;
+    /* Safeguard */
 }
 
 /* Platter Module */
@@ -2176,11 +2409,11 @@ a {
 }
 
 .play-btn {
-    color: #00c853;
+    color: var(--primary-color);
 }
 
 .cue-btn {
-    color: #d50000;
+    color: var(--secondary-color);
 }
 
 /* Mixer Module */
@@ -2208,6 +2441,8 @@ a {
     font-size: 0.65rem;
     font-weight: bold;
     color: var(--deep-purple);
+    white-space: nowrap;
+    /* Prevent wrapping */
 }
 
 /* Realistic Knobs */
@@ -2256,20 +2491,25 @@ a {
 }
 
 /* Colored Caps */
+/* Colored Caps (Brand Palette) */
 .te-knob.red::before {
-    background: radial-gradient(circle, #ff5252, #d32f2f);
+    background: radial-gradient(circle, #FF4D6D, #D00030);
+    /* Pink */
 }
 
 .te-knob.green::before {
-    background: radial-gradient(circle, #69f0ae, #388e3c);
+    background: radial-gradient(circle, #8A5CF5, #5A2CB5);
+    /* Purple */
 }
 
 .te-knob.blue::before {
-    background: radial-gradient(circle, #448aff, #1976d2);
+    background: radial-gradient(circle, #4CC9F0, #0090C0);
+    /* Blue */
 }
 
 .te-knob.orange::before {
-    background: radial-gradient(circle, #ffab40, #ff6d00);
+    background: radial-gradient(circle, #FFD166, #CC9900);
+    /* Yellow */
 }
 
 .te-knob.white::before {
@@ -2306,6 +2546,14 @@ a {
     border-radius: 15px;
     /* Track styling */
     box-shadow: inset 0 2px 5px rgba(26, 11, 46, 0.2);
+}
+
+.te-fader-wrapper label {
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: var(--deep-purple);
+    white-space: nowrap;
+    margin-top: 5px;
 }
 
 .crossfader-area {
@@ -2474,26 +2722,29 @@ a {
 
 #playBtn:active,
 #playBtn.active {
-    background: #00ff00;
-    color: #003300;
+    background: var(--primary-color);
+    color: #fff;
     box-shadow:
-        0 0 20px rgba(0, 255, 0, 0.4),
+        0 0 20px rgba(138, 92, 245, 0.4),
         inset 2px 2px 5px rgba(26, 11, 46, 0.3);
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    border-color: var(--primary-color);
 }
 
 #cueBtn {
     border-color: #2a1a1a;
+    color: var(--secondary-color);
 }
 
 #cueBtn:active,
 #cueBtn.active {
-    background: #ffaa00;
-    color: #331100;
+    background: var(--secondary-color);
+    color: #fff;
     box-shadow:
-        0 0 20px rgba(255, 170, 0, 0.4),
+        0 0 20px rgba(255, 77, 109, 0.4),
         inset 2px 2px 5px rgba(26, 11, 46, 0.3);
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    border-color: var(--secondary-color);
 }
 
 /* --- FX & Sampler Controls --- */
@@ -2509,10 +2760,17 @@ a {
     justify-content: center;
     gap: 10px;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+    /* Allow wrapping on small screens */
 }
 
 .te-btn-small {
-    width: 40px;
+    min-width: 40px;
+    /* Was fixed width 40px */
+    width: auto;
+    /* Allow expansion for text */
+    padding: 0 6px;
+    /* Add padding for text */
     height: 40px;
     border-radius: 4px;
     background: #e0e0e0;
@@ -2530,6 +2788,8 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
+    /* Prevent text wrapping */
 }
 
 .te-btn-small:active,
@@ -2632,6 +2892,7 @@ a {
 }
 
 /* Mobile Responsive */
+/* Mobile Responsive */
 @media (max-width: 1024px) {
     .te-wrapper {
         padding: 10px;
@@ -2639,13 +2900,20 @@ a {
     }
 
     .te-casing {
-        padding: 20px;
+        padding: 15px 10px;
+        /* Compact padding to keep it tight */
+        box-shadow:
+            0 10px 20px rgba(26, 11, 46, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9),
+            inset 0 -1px 0 rgba(26, 11, 46, 0.1);
+        /* Reduced from 30px 60px 0.4 */
     }
 
     .te-grid {
         display: flex;
         flex-direction: column;
-        gap: 40px;
+        gap: 10px;
+        /* Reduced from 20px for cohesive look */
     }
 
     .te-top-bar {
@@ -2656,6 +2924,7 @@ a {
 
     .te-branding {
         text-align: center;
+        margin-bottom: 10px;
     }
 
     .te-screen {
@@ -2665,27 +2934,65 @@ a {
     }
 
     .mixer-module {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-around;
+        flex-direction: column;
+        /* Stack mixer columns */
+        justify-content: center;
+        align-items: center;
         gap: 30px;
+    }
+
+    .eq-column,
+    .fader-column {
+        width: 100%;
+        justify-content: space-around;
+        flex-direction: row;
+        /* Horizontal Knobs */
     }
 
     .crossfader-area {
         position: relative;
         width: 100%;
         margin-top: 20px;
+        bottom: 0;
+        left: 0;
     }
 
     .tone-arm {
-        right: -10px;
-        /* Adjust for smaller screens */
-        transform-origin: top right;
+        display: none;
+        /* Hide complex arm on mobile */
     }
 
     .te-module {
         width: 100%;
-        /* Full width modules */
+        padding: 15px;
+        /* Reduced padding */
+    }
+
+    /* Team/Carousel Mobile Fixes */
+    .carousel-window {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .carousel-track {
+        padding-left: 20px;
+        /* Peek effect */
+    }
+
+    .team-card {
+        flex: 0 0 260px;
+        /* Fluid flex width */
+        min-width: 260px;
+        aspect-ratio: 3/4;
+        /* Maintain portrait ratio */
+        height: auto;
+        /* Let aspect-ratio dictate height */
+        margin-right: 15px;
+    }
+
+    .team-intro {
+        padding: 20px;
+        font-size: 0.9rem;
     }
 }
 
@@ -2700,25 +3007,126 @@ a {
 }
 
 /* Musical Note Animation */
+/* Musical Note Animation (Enhanced) */
 .musical-note {
     position: fixed;
     pointer-events: none;
     z-index: 9999;
-    font-size: 24px;
+    font-size: 2rem;
     font-weight: bold;
-    animation: floatUp 1s ease-out forwards;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    animation: floatUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    text-shadow: 0 0 15px currentColor;
+    /* Glow effect */
+    opacity: 0;
 }
 
 @keyframes floatUp {
     0% {
-        transform: translateY(0) rotate(0deg) scale(1);
+        transform: translateY(0) rotate(0deg) scale(0.5);
+        opacity: 0;
+    }
+
+    10% {
         opacity: 1;
+        transform: translateY(-20px) rotate(var(--rotation)) scale(1.1);
     }
 
     100% {
-        transform: translateY(-100px) rotate(var(--rotation)) scale(1.2);
+        transform: translateY(-150px) rotate(var(--rotation)) scale(0.8);
         opacity: 0;
+    }
+}
+
+/* --- Preloader --- */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--deep-purple);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease-out, visibility 0.5s;
+}
+
+#preloader.loaded {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.preloader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.vinyl-spinner {
+    width: 100px;
+    height: 100px;
+    animation: spin 1s linear infinite;
+}
+
+.vinyl-record-sm {
+    width: 100%;
+    height: 100%;
+    background: #111;
+    border-radius: 50%;
+    position: relative;
+    /* Grooves */
+    background: repeating-radial-gradient(#111 0,
+            #111 2px,
+            #222 3px,
+            #222 4px);
+    box-shadow: 0 0 20px rgba(138, 92, 245, 0.5);
+    /* Glow */
+}
+
+.vinyl-label-sm {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%;
+    height: 40%;
+    background: #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    padding: 2px;
+}
+
+.vinyl-label-sm img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.loading-text {
+    font-family: var(--font-wide);
+    color: #fff;
+    font-size: 1.2rem;
+    letter-spacing: 4px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
     }
 }
 
@@ -2784,7 +3192,6 @@ a {
     transform: translate(-50%, -50%);
     z-index: 9999;
     transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
-    mix-blend-mode: difference;
     display: none;
     /* Hidden on mobile by default */
 }
@@ -2820,12 +3227,27 @@ a {
 }
 
 /* Mobile Responsive Adjustments */
+
+/* --- Spacing Standardization (Mobile) --- */
 @media (max-width: 768px) {
-    .gallery-grid {
-        grid-template-columns: 1fr;
+    #gallery {
+        padding-bottom: 80px;
+        /* Reduced from 150px for mobile balance */
     }
 
-    .faq-question {
-        font-size: 1rem;
+    .cta-section {
+        margin-bottom: 60px;
+        /* Standardize with other section gaps */
+    }
+
+    /* Fix header-to-content visual gaps */
+    .marquee-container {
+        padding-top: 20px;
+        /* Was 40px */
+    }
+
+    .rent-content {
+        padding-top: 20px;
+        /* Was 30px */
     }
 }

@@ -137,6 +137,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- Mobile Menu Logic ---
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const mobileNav = document.querySelector('.mobile-nav');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+    if (mobileMenuToggle && mobileNav) {
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenuToggle.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+        });
+
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuToggle.classList.remove('active');
+                mobileNav.classList.remove('active');
+                document.body.classList.remove('menu-open');
+
+                // Allow time for menu to close before smooth scroll logic kicks in if needed
+                // But the default anchor listener at top of file handles the scroll.
+            });
+        });
+    }
+
     // --- DJ Deck Simulator Logic ---
     const playBtn = document.getElementById('playBtn');
     const cueBtn = document.getElementById('cueBtn');
@@ -917,7 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataArray = new Uint8Array(bufferLength);
         analyser.getByteFrequencyData(dataArray);
 
-        canvasCtx.fillStyle = '#000';
+        canvasCtx.fillStyle = '#1A0B2E'; // Dark purple bg
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
         const barWidth = (canvas.width / bufferLength) * 2.5;
@@ -926,10 +950,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (let i = 0; i < bufferLength; i++) {
             barHeight = dataArray[i] / 2;
-            const r = barHeight + (25 * (i / bufferLength));
-            const g = 250 * (i / bufferLength);
-            const b = 50;
-            canvasCtx.fillStyle = `rgb(${r},${g},${b})`;
+
+            // Gradient from Purple to Pink based on height/position
+            // Purple: 138, 92, 245
+            // Pink: 255, 77, 109
+            const ratio = i / bufferLength;
+            const r = 138 + (117 * ratio); // 138 -> 255
+            const g = 92 - (15 * ratio);   // 92 -> 77
+            const b = 245 - (136 * ratio); // 245 -> 109
+
+            canvasCtx.fillStyle = `rgb(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)})`;
             canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
             x += barWidth + 1;
         }
@@ -1226,6 +1256,17 @@ document.addEventListener('DOMContentLoaded', () => {
             // autoPlayInterval = setInterval(moveNext, 3500); // Disabled Auto-Scroll as requested
         }
 
+        // --- Preloader Logic ---
+        window.addEventListener('load', () => {
+            const preloader = document.getElementById('preloader');
+            if (preloader) {
+                // Minimum time to show brand
+                setTimeout(() => {
+                    preloader.classList.add('loaded');
+                }, 1000);
+            }
+        });
+
         // --- Musical Note Animation on Click ---
         document.addEventListener('click', (e) => {
             // Create multiple notes for a "burst" effect on ANY click
@@ -1233,29 +1274,30 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let i = 0; i < noteCount; i++) {
                 setTimeout(() => {
                     createMusicalNote(e.clientX, e.clientY);
-                }, i * 100); // Stagger them slightly
+                }, i * 80); // Stagger them slightly
             }
         });
         function createMusicalNote(x, y) {
             const note = document.createElement('span');
             note.classList.add('musical-note');
 
-            const notes = ['♪', '♫', '♩', '♬', '♭', '♮', '♯'];
+            // Using a mix of nice unicode musical symbols
+            const notes = ['♪', '♫', '♩', '♬', '♭', '♮', '♯', '𝄞'];
             note.innerText = notes[Math.floor(Math.random() * notes.length)];
 
-            // Randomize styles
-            const colors = ['var(--primary-color)', 'var(--secondary-color)', '#fff', '#ff8fa3', '#9d7bf5'];
+            // Prettier, vibrant colors - STRICT BRAND PALETTE
+            const colors = ['#8A5CF5', '#FF4D6D', '#1A0B2E', '#ffffff'];
             note.style.color = colors[Math.floor(Math.random() * colors.length)];
 
-            // Random offset to make them spread out
-            const offsetX = (Math.random() - 0.5) * 40;
-            const offsetY = (Math.random() - 0.5) * 20;
+            // Random offset to make them spread out naturally
+            const offsetX = (Math.random() - 0.5) * 50;
+            const offsetY = (Math.random() - 0.5) * 30;
 
             note.style.left = `${x + offsetX}px`;
             note.style.top = `${y + offsetY}px`;
 
             // Random rotation for the animation
-            const rotation = (Math.random() - 0.5) * 60; // -30 to +30 deg
+            const rotation = (Math.random() - 0.5) * 45;
             note.style.setProperty('--rotation', `${rotation}deg`);
 
             document.body.appendChild(note);
@@ -1263,7 +1305,89 @@ document.addEventListener('DOMContentLoaded', () => {
             // Clean up
             setTimeout(() => {
                 note.remove();
-            }, 1000);
+            }, 1200);
         }
+    }
+
+    // --- Draggable Marquee Logic ---
+    const marqueeContainer = document.querySelector('.marquee-container');
+    const marqueeTrack = document.querySelector('.marquee-track');
+
+    if (marqueeContainer && marqueeTrack) {
+        let currentScroll = 0;
+        let isDraggingMarquee = false;
+        let startX = 0;
+        let lastX = 0;
+        let scrollSpeed = 0.5; // Auto-scroll speed
+        let dragSpeed = 1.5; // Drag sensitivity
+        let animationId;
+
+        // Clone items for seamless loop if not already enough
+        // (CSS solution usually requires duplicating content manually, 
+        // assuming HTML already has duplicated items for loop)
+
+        function animateMarquee() {
+            if (!isDraggingMarquee) {
+                currentScroll -= scrollSpeed;
+            }
+
+            // Infinite Loop Logic
+            // The content is duplicated. When we scroll past half the width, reset to 0.
+            // Assumption: The track contains 2 identical sets of items.
+            const totalWidth = marqueeTrack.scrollWidth;
+            const halfWidth = totalWidth / 2;
+
+            if (Math.abs(currentScroll) >= halfWidth) {
+                currentScroll = 0;
+            } else if (currentScroll > 0) {
+                currentScroll = -halfWidth;
+            }
+
+            marqueeTrack.style.transform = `translateX(${currentScroll}px)`;
+            animationId = requestAnimationFrame(animateMarquee);
+        }
+
+        // Start Animation
+        animationId = requestAnimationFrame(animateMarquee);
+
+        // Drag Events
+        marqueeContainer.addEventListener('mousedown', (e) => {
+            isDraggingMarquee = true;
+            startX = e.clientX;
+            lastX = currentScroll;
+            marqueeTrack.style.cursor = 'grabbing';
+            marqueeTrack.style.transition = 'none'; // Disable transition during drag
+        });
+
+        marqueeContainer.addEventListener('touchstart', (e) => {
+            isDraggingMarquee = true;
+            startX = e.touches[0].clientX;
+            lastX = currentScroll;
+            marqueeTrack.style.transition = 'none';
+        }, { passive: true });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDraggingMarquee) return;
+            e.preventDefault();
+            const x = e.clientX;
+            const walk = (x - startX) * dragSpeed;
+            currentScroll = lastX + walk;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isDraggingMarquee) return;
+            const x = e.touches[0].clientX;
+            const walk = (x - startX) * dragSpeed;
+            currentScroll = lastX + walk;
+        }, { passive: true });
+
+        const stopDrag = () => {
+            isDraggingMarquee = false;
+            marqueeTrack.style.cursor = 'grab';
+            // Optional: Add momentum here if needed, or simple resume
+        };
+
+        window.addEventListener('mouseup', stopDrag);
+        window.addEventListener('touchend', stopDrag);
     }
 });
