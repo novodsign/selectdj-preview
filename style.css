@@ -451,11 +451,11 @@ a {
 
 /* Header */
 .header {
-    position: fixed;
     top: 20px;
     left: 0;
     width: 100%;
-    z-index: 100;
+    z-index: 30000;
+    /* Raised from 100 to ensure Mobile Menu (child) covers Hero (z-10001) */
     padding: 10px 0;
     transition: transform 0.3s;
 }
