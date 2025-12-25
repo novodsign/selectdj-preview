@@ -595,7 +595,8 @@ a {
     .hero-video {
         width: 140px;
         min-width: 0;
-        opacity: 1;
+        opacity: 0.99;
+        /* Force repaint */
         /* Full visibility */
         bottom: 20%;
         /* Lift up slightly to frame "Register" button area? Or keep at bottom */
@@ -603,11 +604,17 @@ a {
         /* Place above grain overlay (9999) */
         mix-blend-mode: screen;
         /* Fix for Safari Black Background: Treats black pixels as transparent */
+        /* Safari Fixes */
+        transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+        background-color: transparent;
     }
 
     /* Fix: Ensure container is above grain overlay */
     .hero-videos {
         z-index: 10000;
+        isolation: isolate;
+        /* Create new stacking context */
     }
 
     /* Fix: Ensure text/buttons stay above videos */
