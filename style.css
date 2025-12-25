@@ -613,8 +613,14 @@ a {
     /* Fix: Ensure container is above grain overlay */
     .hero-videos {
         z-index: 10000;
-        isolation: isolate;
-        /* Create new stacking context */
+        /* isolation: isolate; REMOVED - Breaks mix-blend-mode with background */
+    }
+
+    /* Hide videos when mobile menu is open to prevent overlap glitches */
+    body.menu-open .hero-videos {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.2s, visibility 0.2s;
     }
 
     /* Fix: Ensure text/buttons stay above videos */
@@ -1760,9 +1766,10 @@ a {
         right: -100%;
         width: 100%;
         height: 100vh;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        background: #ffffff;
+        /* Solid background to prevent see-through glitches */
+        /* backdrop-filter: blur(20px); Removed to ensure stability */
+        /* -webkit-backdrop-filter: blur(20px); */
         display: flex;
         flex-direction: column;
         justify-content: center;
