@@ -620,7 +620,8 @@ a {
     body.menu-open .hero-videos {
         visibility: hidden;
         opacity: 0;
-        transition: opacity 0.2s, visibility 0.2s;
+        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+        /* Smooth fade */
     }
 
     /* Fix: Ensure text/buttons stay above videos */
@@ -1361,6 +1362,8 @@ a {
 .clubs-ticker-wrapper {
     overflow: hidden;
     width: 100%;
+    max-width: 100vw;
+    /* Fix for mobile horizontal scroll */
     position: relative;
     padding: 50px 0;
 }
