@@ -3005,9 +3005,40 @@ a {
         margin-right: 15px;
     }
 
-    .team-intro {
-        padding: 20px;
+    .hero-btn {
+        padding: 15px 35px;
         font-size: 0.9rem;
+    }
+
+    /* Typography Fixes */
+    h1,
+    h2,
+    h3,
+    .section-title {
+        word-break: keep-all;
+        /* Prevent awkward word splitting */
+        overflow-wrap: normal;
+        hyphens: none;
+    }
+
+    .cta-section {
+        padding: 40px 20px;
+    }
+
+    .cta-section h2 {
+        font-size: 2rem;
+        /* Smaller size to prevent wrapping issues */
+        padding: 0 10px 10px 10px;
+        /* Add padding to prevent clipping of "?" */
+        line-height: 1.2;
+    }
+
+    .cta-section p {
+        font-size: 1rem;
+        line-height: 1.4;
+        /* Reduce line height */
+        margin-bottom: 30px;
+        padding: 0 10px;
     }
 }
 
