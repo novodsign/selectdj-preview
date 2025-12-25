@@ -1819,24 +1819,55 @@ a {
         /* Prevent touching edges */
     }
 
-    /* Make marquee items larger on mobile */
-    .gallery-item {
-        flex: 0 0 60vw;
-        /* Make them much bigger (was 25vw) */
-        height: 80vw;
+    /* GLOBAL MOBILE OVERFLOW FIX */
+    html,
+    body {
+        overflow-x: hidden;
+        width: 100%;
+        position: relative;
     }
 
-    .rent-content {
-        flex-direction: column;
-        gap: 40px;
-        padding: 30px;
-        /* Reduce padding on mobile */
-        text-align: center;
+    .hero-btn {
+        padding: 15px 35px;
+        font-size: 0.9rem;
     }
 
-    .rent-text h3 {
-        font-size: 1.8rem;
-        /* Smaller font for mobile */
+    /* Typography Fixes */
+    h1 {
+        font-size: 2.2rem !important;
+    }
+
+    h2,
+    .section-title {
+        font-size: 1.7rem !important;
+        /* Aggressively smaller to fit "PREPODAVATELI" */
+        word-break: normal;
+        /* "keep-all" can cause overflow if word is too long. "normal" allows break if needed, but size should fix it. */
+        overflow-wrap: break-word;
+        /* Allow break if absolutely necessary */
+        hyphens: auto;
+        line-height: 1.2;
+    }
+
+    h3 {
+        font-size: 1.4rem !important;
+    }
+
+    .cta-section {
+        padding: 40px 15px;
+        /* Reduce side padding */
+    }
+
+    .cta-section h2 {
+        font-size: 1.8rem !important;
+        padding-bottom: 10px;
+    }
+
+    .cta-section p {
+        font-size: 1rem;
+        line-height: 1.4;
+        margin-bottom: 30px;
+        padding: 0 5px;
     }
 
     .rent-image {
