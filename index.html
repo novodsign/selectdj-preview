@@ -109,12 +109,19 @@
             </svg>
 
             <div class="hero-videos">
-                <video class="hero-video left" autoplay loop muted playsinline webkit-playsinline>
+                <!-- Desktop Videos (.webm) -->
+                <video class="hero-video left desktop-only" autoplay loop muted playsinline webkit-playsinline>
                     <source src="assets/videos/boy.webm" type="video/webm">
                 </video>
-                <video class="hero-video right" autoplay loop muted playsinline webkit-playsinline>
+                <video class="hero-video right desktop-only" autoplay loop muted playsinline webkit-playsinline>
                     <source src="assets/videos/girl.webm" type="video/webm">
                 </video>
+
+                <!-- Mobile Static Images (.png) -->
+                <img src="assets/images/hero-boy-mobile.png" class="hero-video left mobile-only"
+                    alt="Select Academy Student">
+                <img src="assets/images/hero-girl-mobile.png" class="hero-video right mobile-only"
+                    alt="Select Academy Student">
             </div>
 
             <div class="container hero-container">

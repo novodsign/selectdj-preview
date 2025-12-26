@@ -593,23 +593,35 @@ a {
 }
 
 @media (max-width: 768px) {
+
+    /* Hide videos on mobile, show images */
+    /* Toggle Visibility */
+    .desktop-only {
+        display: none !important;
+    }
+
+    .mobile-only {
+        display: block !important;
+    }
+
     .hero-video {
         width: 140px;
         min-width: 0;
         opacity: 0.99;
         /* Force repaint */
         /* Full visibility */
-        bottom: 38%;
-        /* Raised from 20% to align with "SELECT" logo and clear description */
-        /* lift up closer to title */
+        bottom: 38% !important;
+        /* Force override */
         z-index: 10000;
         /* Place above grain overlay (9999) */
-        mix-blend-mode: screen;
-        /* Fix for Safari Black Background: Treats black pixels as transparent */
+
+        /* CLEANUP: No blend mode needed for PNGs */
+        mix-blend-mode: normal;
+        background: transparent;
+
         /* Safari Fixes */
         transform: translate3d(0, 0, 0);
         -webkit-transform: translate3d(0, 0, 0);
-        background-color: transparent;
     }
 
     /* Fix: Ensure container is above grain overlay */
