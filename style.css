@@ -2179,18 +2179,22 @@ body.is-apple-mobile .hero-static {
 
     .modal-close {
         position: fixed;
-        /* Fixed position so it's always visible */
         top: 15px;
         right: 15px;
         z-index: 10001;
-        /* Above everything */
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.95);
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
+        pointer-events: auto !important;
+        /* Ensure clicks work */
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        /* Better touch handling */
     }
 
     /* Hide navbar when modal is open */
