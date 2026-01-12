@@ -2207,17 +2207,33 @@ body.is-apple-mobile .hero-static {
         margin: -10px -10px 10px auto;
         border: none;
         box-shadow: 0 4px 15px rgba(138, 92, 245, 0.4);
+        /* Remove all animations/transitions */
+        transition: none !important;
+        transform: none !important;
+        -webkit-tap-highlight-color: transparent;
     }
 
-    .modal-close:active {
-        transform: scale(0.95);
-        background: var(--secondary-color);
+    /* No hover/active effects on mobile */
+    .modal-close:hover,
+    .modal-close:active,
+    .modal-close:focus {
+        transform: none !important;
+        background: var(--primary-color) !important;
     }
 
-    /* Disable animations inside modals */
-    .modal .text-gradient,
-    .modal h2 {
+    /* Disable ALL animations/transitions inside modals on mobile */
+    .modal,
+    .modal *,
+    .modal-overlay {
         animation: none !important;
+        transition: none !important;
+    }
+
+    /* Instant show/hide for modals */
+    .modal.active {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
     }
 
     /* Hide navbar when modal is open */
