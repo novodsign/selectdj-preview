@@ -466,8 +466,8 @@ a {
     justify-content: center;
     gap: 40px;
     background: rgba(255, 255, 255, 0.7);
-    padding: 15px 20px;
-    /* Reduced from 30px to make ears shorter */
+    padding: 15px 40px;
+    /* Increased to 40px to match gap size */
     border-radius: 50px;
     backdrop-filter: blur(15px);
     box-shadow: 0 10px 30px rgba(26, 11, 46, 0.05);
@@ -546,12 +546,16 @@ a {
 }
 
 /* Hero - Needs height */
+/* Hero - Needs height */
 .hero {
     text-align: center;
-    padding-top: 100px;
-    /* Reduced padding */
-    min-height: 80vh;
-    /* Reduced from 90vh to ensure button fits */
+    padding-top: 0;
+    /* Centered via flexbox, no padded top needed if 100vh */
+    min-height: 100vh;
+    min-height: 100dvh;
+    /* Modern mobile fix */
+    margin-bottom: 0;
+    /* Reset margins, height handles spacing */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -572,6 +576,33 @@ a {
     pointer-events: none;
 }
 
+/* --- STRICT HERO DISPLAY LOGIC --- */
+
+/* 1. Default State (Desktop, Android, etc.) */
+/* Videos are visible, Static Images are hidden */
+.hero-anim {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+.hero-static {
+    display: none !important;
+    opacity: 0 !important;
+}
+
+/* 2. Apple Mobile Override (iPhone, iPad) */
+/* Triggered by JS class 'is-apple-mobile' on body */
+body.is-apple-mobile .hero-anim {
+    display: none !important;
+    opacity: 0 !important;
+}
+
+body.is-apple-mobile .hero-static {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+/* Shared Positioning */
 .hero-video {
     position: absolute;
     bottom: 0px;
@@ -580,10 +611,12 @@ a {
     max-width: 600px;
     min-width: 250px;
     object-fit: cover;
-    /* Optional: Blend mode if videos have black bg */
     mix-blend-mode: screen;
+    /* Blend for videos */
+    z-index: 10000;
 }
 
+/* Specific sides */
 .hero-video.left {
     left: 0;
 }
@@ -592,36 +625,46 @@ a {
     right: 0;
 }
 
+/* Mobile Sizing (Applies to both Video and Image on small screens) */
 @media (max-width: 768px) {
-
-    /* Hide videos on mobile, show images */
-    /* Toggle Visibility */
-    .desktop-only {
-        display: none !important;
-    }
-
-    .mobile-only {
-        display: block !important;
-    }
-
     .hero-video {
         width: 140px;
         min-width: 0;
-        opacity: 0.99;
-        /* Force repaint */
-        /* Full visibility */
         bottom: 38% !important;
-        /* Force override */
-        z-index: 10000;
-        /* Place above grain overlay (9999) */
-
-        /* CLEANUP: No blend mode needed for PNGs */
         mix-blend-mode: normal;
-        background: transparent;
+        /* No blend for mobile mostly, or consistent */
+        /* PNGs don't need screen blend, videos on Android mobile might? 
+           Let's keep screen for videos if they are black background, 
+           but the user said "PNGs only on iPhone", and videos elsewhere.
+           If the videos have black background, they match the dark aesthetic?
+           Actually, the site is light/glass. Videos likely need mix-blend-mode: screen or multiply?
+           
+           Reviewing original code:
+           Original .hero-video had mix-blend-mode: screen;
+           Original mobile override set mix-blend-mode: normal;
+           
+           If we use PNGs on Apple Mobile, they definitely want Normal.
+           If we use Videos on Android Mobile, do they need Screen?
+           Likely yes, if they are the same WebM files.
+           
+           Let's refine:
+        */
+    }
 
-        /* Safari Fixes */
-        transform: translate3d(0, 0, 0);
-        -webkit-transform: translate3d(0, 0, 0);
+    .hero-anim {
+        mix-blend-mode: screen !important;
+    }
+
+    .hero-static {
+        mix-blend-mode: normal !important;
+    }
+
+    .hero-video.left {
+        left: -20px;
+    }
+
+    .hero-video.right {
+        right: -20px;
     }
 
     /* Fix: Ensure container is above grain overlay */
@@ -644,15 +687,6 @@ a {
     .hero-container {
         position: relative;
         z-index: 10001;
-    }
-
-    .hero-video.left {
-        left: -20px;
-        /* Slight offset off-screen if needed */
-    }
-
-    .hero-video.right {
-        right: -20px;
     }
 }
 
@@ -3288,7 +3322,7 @@ a {
     border-radius: 50%;
     pointer-events: none;
     transform: translate(-50%, -50%);
-    z-index: 9999;
+    z-index: 100000;
     transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
     display: none;
     /* Hidden on mobile by default */

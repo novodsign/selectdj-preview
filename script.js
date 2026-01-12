@@ -1,4 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Apple Mobile Device Detection (Strict) ---
+    // Detects iPhone, iPad, iPod, and iPadOS 13+ (which reports as MacIntel)
+    const isAppleMobile = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    if (isAppleMobile) {
+        document.body.classList.add('is-apple-mobile');
+        console.log('Apple Mobile Device Detected: Using Static Hero Images');
+    } else {
+        document.body.classList.add('is-non-apple-mobile'); // Optional: for inverse logic if needed
+        console.log('Non-Apple/Desktop Device Detected: Using Hero Videos');
+    }
+
     // Smooth scrolling
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -10,30 +23,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Funky Parallax Blobs ---
+    // --- Funky Parallax Blobs (Optimized) ---
     const blobs = document.querySelectorAll('.blob');
+    let blobScrollY = window.pageYOffset;
+    let blobTargetX = 0;
+    let blobTargetY = 0;
+    let blobRafId = null;
 
-    window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
+    function updateBlobs() {
         blobs.forEach((blob, index) => {
             const speed = (index + 1) * 0.1;
-            blob.style.transform = `translateY(${scrolled * speed}px)`;
+            // Combined scroll and mouse effect might be expensive, keeping it simple
+            blob.style.transform = `translateY(${blobScrollY * speed}px)`;
         });
-    });
+        blobRafId = null;
+    }
 
+    window.addEventListener('scroll', () => {
+        blobScrollY = window.pageYOffset;
+        if (!blobRafId) {
+            blobRafId = requestAnimationFrame(updateBlobs);
+        }
+    }, { passive: true });
+
+    // Mousemove for blobs deemed too expensive/unnecessary for the "lag" fix, 
+    // keeping it removed or strictly optimized if requested. 
+    // The original code had a mousemove listener here. let's optimize it if we keep it.
+    /* 
     window.addEventListener('mousemove', (e) => {
-        const x = e.clientX / window.innerWidth;
-        const y = e.clientY / window.innerHeight;
-
-        blobs.forEach((blob, index) => {
-            const speed = (index + 1) * 20;
-            const xOffset = (window.innerWidth / 2 - e.clientX) / speed;
-            const yOffset = (window.innerHeight / 2 - e.clientY) / speed;
-            // Combine scroll and mouse movement if possible, but for now just mouse is fine for "float"
-            // Actually, let's keep the CSS animation for float and just add slight mouse interaction
-            // blob.style.transform = `translate(${xOffset}px, ${yOffset}px)`; 
-        });
-    });
+         // If we want mouse interaction, we should use a similar RAF approach.
+         // For now, disabling global blob mouse interaction to save FPS.
+    }); 
+    */
 
     // --- Scroll Reveal ---
     const revealElements = document.querySelectorAll('.reveal');
@@ -49,26 +70,44 @@ document.addEventListener('DOMContentLoaded', () => {
     revealElements.forEach(el => revealObserver.observe(el));
 
     // --- 3D Tilt Effect ---
-    const tiltCards = document.querySelectorAll('.course-card, .team-card, .glass-card, .bento-card');
+    // --- 3D Tilt Effect (Optimized) ---
+    const tiltCards = document.querySelectorAll('.course-card, .team-card, .glass-card:not(.modal), .bento-card');
 
     tiltCards.forEach(card => {
-        card.classList.add('tilt-card'); // Ensure class exists
+        card.classList.add('tilt-card');
+
+        let cardRafId = null;
+        let cardBounds = null; // Cache bounds on mouseenter
+
+        card.addEventListener('mouseenter', () => {
+            cardBounds = card.getBoundingClientRect();
+        });
 
         card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            if (!cardBounds) cardBounds = card.getBoundingClientRect();
 
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
+            if (!cardRafId) {
+                cardRafId = requestAnimationFrame(() => {
+                    const x = e.clientX - cardBounds.left;
+                    const y = e.clientY - cardBounds.top;
 
-            const rotateX = ((y - centerY) / centerY) * -10; // Max 10deg rotation
-            const rotateY = ((x - centerX) / centerX) * 10;
+                    const centerX = cardBounds.width / 2;
+                    const centerY = cardBounds.height / 2;
 
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                    const rotateX = ((y - centerY) / centerY) * -10;
+                    const rotateY = ((x - centerX) / centerX) * 10;
+
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                    cardRafId = null;
+                });
+            }
         });
 
         card.addEventListener('mouseleave', () => {
+            if (cardRafId) {
+                cancelAnimationFrame(cardRafId);
+                cardRafId = null;
+            }
             card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
         });
     });
@@ -127,13 +166,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Button Hover Effect (Radial Gradient) ---
+    // --- Button Hover Effect (Radial Gradient - Optimized) ---
     document.querySelectorAll('.btn').forEach(btn => {
+        let btnRafId = null;
+
         btn.addEventListener('mousemove', (e) => {
-            const rect = btn.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            btn.style.setProperty('--x', `${x}px`);
-            btn.style.setProperty('--y', `${y}px`);
+            if (!btnRafId) {
+                btnRafId = requestAnimationFrame(() => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    btn.style.setProperty('--x', `${x}px`);
+                    btn.style.setProperty('--y', `${y}px`);
+                    btnRafId = null;
+                });
+            }
         });
     });
 

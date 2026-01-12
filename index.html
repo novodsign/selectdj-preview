@@ -4,12 +4,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SELECT ACADEMY - DJ Academy</title>
+    <title>SELECT ACADEMY | Школа диджеинга в Санкт-Петербурге</title>
+    <meta name="description"
+        content="Обучение диджеингу в Санкт-Петербурге. Индивидуальные курсы на профессиональном оборудовании Pioneer DJ. Стань резидентом топовых клубов.">
+    <meta name="keywords"
+        content="школа диджеинга спб, курсы диджеев, обучение диджеингу, select academy, уроки диджеинга питер, dj школа">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/selectlogo-nosubtitle.PNG">
+    <link rel="apple-touch-icon" href="assets/images/selectlogo-nosubtitle.PNG">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://select-academy.vercel.app/">
+    <meta property="og:title" content="SELECT ACADEMY | Школа диджеинга в СПб">
+    <meta property="og:description" content="Твоя карьера диджея начинается здесь. Обучение, практика, коммьюнити.">
+    <meta property="og:image" content="assets/images/selectlogo-nosubtitle.PNG">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://select-academy.vercel.app/">
+    <meta property="twitter:title" content="SELECT ACADEMY">
+    <meta property="twitter:description"
+        content="Твоя карьера диджея начинается здесь. Обучение, практика, коммьюнити.">
+    <meta property="twitter:image" content="assets/images/selectlogo-nosubtitle.PNG">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="style.css">
+    <link rel="canonical" href="https://select-academy.vercel.app/">
+
+    <!-- Schema.org Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": ["MusicSchool", "LocalBusiness"],
+      "name": "SELECT ACADEMY",
+      "image": "https://select-academy.vercel.app/assets/images/selectlogo-nosubtitle.PNG",
+      "@id": "https://select-academy.vercel.app/",
+      "url": "https://select-academy.vercel.app/",
+      "telephone": "+7 (999) 000-00-00",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Конюшенная площадь, 2В",
+        "addressLocality": "Санкт-Петербург",
+        "postalCode": "191186",
+        "addressCountry": "RU"
+      },
+      "priceRange": "3000 RUB - 40000 RUB",
+      "sameAs": [
+        "https://www.instagram.com/select.dj/",
+        "https://t.me/select_djacademy"
+      ],
+      "description": "Школа диджеинга в Санкт-Петербурге. Обучение на CDJ-2000NXS2. Индивидуальные курсы.",
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ],
+        "opens": "12:00",
+        "closes": "22:00"
+      }
+    }
+    </script>
 </head>
 
 <body>
@@ -110,18 +173,20 @@
 
             <div class="hero-videos">
                 <!-- Desktop Videos (.webm) -->
-                <video class="hero-video left desktop-only" autoplay loop muted playsinline webkit-playsinline>
+                <!-- Desktop/Android Videos (.webm) - Hidden on Apple Mobile -->
+                <video class="hero-video left hero-anim" autoplay loop muted playsinline webkit-playsinline>
                     <source src="assets/videos/boy.webm" type="video/webm">
                 </video>
-                <video class="hero-video right desktop-only" autoplay loop muted playsinline webkit-playsinline>
+                <video class="hero-video right hero-anim" autoplay loop muted playsinline webkit-playsinline>
                     <source src="assets/videos/girl.webm" type="video/webm">
                 </video>
 
                 <!-- Mobile Static Images (.png) -->
-                <img src="assets/images/hero-boy-mobile.png" class="hero-video left mobile-only"
-                    alt="Select Academy Student">
-                <img src="assets/images/hero-girl-mobile.png" class="hero-video right mobile-only"
-                    alt="Select Academy Student">
+                <!-- Apple Mobile Static Images (.png) - Only visible on iPhone/iPad -->
+                <img src="assets/images/hero-boy-mobile.png" class="hero-video left hero-static"
+                    alt="Студент Select Academy за диджейским пультом">
+                <img src="assets/images/hero-girl-mobile.png" class="hero-video right hero-static"
+                    alt="Девушка диджей Select Academy">
             </div>
 
             <div class="container hero-container">
@@ -166,7 +231,7 @@
                         </svg>
                     </div>
                 </div>
-                <p class="hero-subtitle">АКАДЕМИЯ ДИДЖЕИНГА В&nbsp;САНКТ-ПЕТЕРБУРГЕ</p>
+                <h1 class="hero-subtitle">АКАДЕМИЯ ДИДЖЕИНГА В&nbsp;САНКТ-ПЕТЕРБУРГЕ</h1>
                 <div class="hero-cta">
                     <a href="#courses" class="btn btn-primary">
                         ВЫБРАТЬ КУРС
@@ -328,27 +393,35 @@
             <div class="marquee-container">
                 <div class="marquee-track">
                     <!-- Original Items -->
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.27 (1).jpeg" alt="Vibe">
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.27 (1).jpeg" alt="Vibe"
+                            loading="lazy">
                     </div>
-                    <div class="gallery-item"><img src="assets/images/dj.jpeg" alt="Vibe"></div>
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.28.jpeg" alt="Vibe">
+                    <div class="gallery-item"><img src="assets/images/dj.jpeg" alt="Vibe" loading="lazy"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.28.jpeg" alt="Vibe"
+                            loading="lazy">
                     </div>
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.29.jpeg" alt="Vibe">
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.29.jpeg" alt="Vibe"
+                            loading="lazy">
                     </div>
-                    <div class="gallery-item"><img src="assets/images/dj2.jpeg" alt="Vibe"></div>
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="Vibe">
+                    <div class="gallery-item"><img src="assets/images/dj2.jpeg" alt="Vibe" loading="lazy"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="Vibe"
+                            loading="lazy">
                     </div>
 
                     <!-- Duplicated Items for Infinite Loop -->
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.27 (1).jpeg" alt="Vibe">
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.27 (1).jpeg" alt="Vibe"
+                            loading="lazy">
                     </div>
-                    <div class="gallery-item"><img src="assets/images/dj.jpeg" alt="Vibe"></div>
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.28.jpeg" alt="Vibe">
+                    <div class="gallery-item"><img src="assets/images/dj.jpeg" alt="Vibe" loading="lazy"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.28.jpeg" alt="Vibe"
+                            loading="lazy">
                     </div>
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.29.jpeg" alt="Vibe">
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.29.jpeg" alt="Vibe"
+                            loading="lazy">
                     </div>
-                    <div class="gallery-item"><img src="assets/images/dj2.jpeg" alt="Vibe"></div>
-                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="Vibe">
+                    <div class="gallery-item"><img src="assets/images/dj2.jpeg" alt="Vibe" loading="lazy"></div>
+                    <div class="gallery-item"><img src="assets/images/photo_2025-11-27 21.16.31.jpeg" alt="Vibe"
+                            loading="lazy">
                     </div>
                 </div>
             </div>
