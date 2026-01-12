@@ -2178,23 +2178,36 @@ body.is-apple-mobile .hero-static {
     }
 
     .modal-close {
-        position: fixed;
-        top: 15px;
-        right: 15px;
+        position: sticky;
+        top: 0;
+        right: 0;
+        float: right;
         z-index: 10001;
-        background: rgba(255, 255, 255, 0.95);
+        background: var(--primary-color);
+        color: #F5F5F5;
         border-radius: 50%;
-        width: 44px;
-        height: 44px;
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        min-height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
-        pointer-events: auto !important;
-        /* Ensure clicks work */
-        cursor: pointer !important;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-        /* Better touch handling */
+        font-size: 1.5rem;
+        margin: -10px -10px 10px auto;
+        border: none;
+        box-shadow: 0 4px 15px rgba(138, 92, 245, 0.4);
+    }
+
+    .modal-close:active {
+        transform: scale(0.95);
+        background: var(--secondary-color);
+    }
+
+    /* Disable animations inside modals */
+    .modal .text-gradient,
+    .modal h2 {
+        animation: none !important;
     }
 
     /* Hide navbar when modal is open */
