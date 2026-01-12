@@ -2158,12 +2158,48 @@ body.is-apple-mobile .hero-static {
 
     .modal {
         padding: 20px;
-        width: 95%;
+        padding-top: 50px;
+        /* Space for close button */
+        width: 100%;
+        height: 100dvh;
+        /* Full screen height */
+        max-height: 100dvh;
+        border-radius: 0;
+        /* No rounded corners in fullscreen */
+        overflow-y: auto;
+        /* Enable scrolling */
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scrolling on iOS */
     }
 
     .modal-image {
         max-height: 200px;
         object-fit: cover;
+    }
+
+    .modal-close {
+        position: fixed;
+        /* Fixed position so it's always visible */
+        top: 15px;
+        right: 15px;
+        z-index: 10001;
+        /* Above everything */
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Hide navbar when modal is open */
+    body.modal-open .navbar {
+        display: none !important;
+    }
+
+    body.modal-open .mobile-menu-toggle {
+        display: none !important;
     }
 }
 

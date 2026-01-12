@@ -137,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalOverlay.classList.add('active');
             modal.classList.add('active');
             document.body.style.overflow = 'hidden'; // Prevent scrolling
+            document.body.classList.add('modal-open'); // Hide navbar on mobile
         }
     }
 
@@ -144,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalOverlay.classList.remove('active');
         modals.forEach(modal => modal.classList.remove('active'));
         document.body.style.overflow = '';
+        document.body.classList.remove('modal-open'); // Show navbar again
     }
 
     modalTriggers.forEach(trigger => {
