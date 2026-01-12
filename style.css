@@ -858,6 +858,11 @@ body.is-apple-mobile .hero-static {
     display: none;
 }
 
+/* Mobile-only line break (hidden on desktop) */
+.mobile-break {
+    display: none;
+}
+
 /* Buttons */
 .btn {
     display: inline-flex;
@@ -3388,12 +3393,18 @@ body.is-apple-mobile .hero-static {
         /* Increased top/bottom padding for better spacing */
     }
 
-    /* Hero Subtitle - Much smaller on mobile to fit on one line */
+    /* Hero Subtitle - Readable size with forced line break */
     .hero-subtitle {
-        font-size: 0.6rem;
-        /* Significantly smaller to prevent cutoff */
-        letter-spacing: 0.5px;
-        padding: 0 10px;
+        font-size: 1rem !important;
+        /* Larger, readable size */
+        letter-spacing: 1px !important;
+        padding: 0 15px !important;
+        line-height: 1.8 !important;
+    }
+
+    /* Show line break on mobile only */
+    .mobile-break {
+        display: block;
     }
 
     /* Gallery/Vibe - Larger images on mobile */
