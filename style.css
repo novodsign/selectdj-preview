@@ -3384,17 +3384,16 @@ body.is-apple-mobile .hero-static {
     }
 
     .rent-content {
-        padding-top: 20px;
-        /* Was 30px */
-        padding-left: 20px;
-        padding-right: 20px;
+        padding: 30px 20px;
+        /* Increased top/bottom padding for better spacing */
     }
 
-    /* Hero Subtitle - Smaller on mobile to prevent "Петербурге" cutoff */
+    /* Hero Subtitle - Much smaller on mobile to fit on one line */
     .hero-subtitle {
-        font-size: 0.85rem;
-        letter-spacing: 1px;
-        padding: 0 15px;
+        font-size: 0.6rem;
+        /* Significantly smaller to prevent cutoff */
+        letter-spacing: 0.5px;
+        padding: 0 10px;
     }
 
     /* Gallery/Vibe - Larger images on mobile */
