@@ -853,6 +853,11 @@ body.is-apple-mobile .hero-static {
     text-transform: uppercase;
 }
 
+/* Submit button text visibility (default: show full, hide short) */
+.btn-text-short {
+    display: none;
+}
+
 /* Buttons */
 .btn {
     display: inline-flex;
@@ -3381,5 +3386,32 @@ body.is-apple-mobile .hero-static {
     .rent-content {
         padding-top: 20px;
         /* Was 30px */
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    /* Hero Subtitle - Smaller on mobile to prevent "Петербурге" cutoff */
+    .hero-subtitle {
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        padding: 0 15px;
+    }
+
+    /* Gallery/Vibe - Larger images on mobile */
+    .gallery-item {
+        flex: 0 0 70vw;
+        /* Much larger width */
+        height: 50vw;
+        max-height: none;
+        border-radius: 15px;
+    }
+
+    /* Submit button - Hide "ЗАЯВКУ" on mobile */
+    .submit-btn .btn-text-full {
+        display: none;
+    }
+
+    .submit-btn .btn-text-short {
+        display: inline;
     }
 }
