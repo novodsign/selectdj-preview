@@ -21,6 +21,16 @@
     --card-radius: 40px;
 }
 
+/* Global Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+* {
+    -webkit-overflow-scrolling: touch;
+    /* Smooth momentum scrolling on iOS */
+}
+
 /* Bento Grid System */
 .bento-grid {
     display: grid;
